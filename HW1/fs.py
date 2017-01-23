@@ -51,12 +51,8 @@ class FileSystem:
 		pass
 
 	def init(self,fsname):
-		storage_file = fsname
 
-		command = raw_input("\n>>")
-
-		if command == "yep":
-			print "awesome"
-
+		self.fsname = fsname
+		
 		return 0
 
