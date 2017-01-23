@@ -8,48 +8,48 @@ class FileSystem:
 		self.fsname = ""
 		self.flist = []
 
-	def create():
+	def create(): # Angie
 		pass
 
-	def open():
+	def open(): # Angie
 		pass
 
-	def close():
+	def close(): # Angie
 		pass 
 
-	def length():
+	def length(): # Angie
 		pass
 
-	def pos():
+	def pos(): # Haley
 		pass 
 
-	def seek():
+	def seek(): # Sally
 		pass 
 
-	def read():
+	def read(): # Sally
 		pass
 
-	def write():
+	def write(): # Sally 
 		pass
 
-	def readlines():
+	def readlines(): # Sally
 		pass
 
-	def delfile():
+	def delfile(): #Haley
 		pass
 
-	def deldir():
+	def deldir(): # Haley
 		pass
 
-	def suspend():
+	# def suspend(): 
+	# 	pass
+
+	# def resume():
+	# 	pass
+
+	def chdir():# Haley 
 		pass
 
-	def resume():
-		pass
-
-	def chdir():
-		pass
-		
 	def init(self,fsname):
 		storage_file = fsname
 
