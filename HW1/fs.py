@@ -47,6 +47,9 @@ class FileSystem:
 	def resume():
 		pass
 
+	def chdir():
+		pass
+		
 	def init(self,fsname):
 		storage_file = fsname
 
