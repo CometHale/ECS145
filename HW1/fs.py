@@ -1,58 +1,64 @@
 from file_class import File
 import pickle
+import os
 
-class FileSystem:
 
-	def __init__(self):
+def create(): # Angie
+	pass
 
-		self.fsname = ""
-		self.flist = []
+def open(): # Angie
+	pass
 
-	def create(): # Angie
-		pass
+def close(): # Angie
+	pass 
 
-	def open(): # Angie
-		pass
+def length(): # Angie
+	pass
 
-	def close(): # Angie
-		pass 
+def pos(): # Haley
+	pass 
 
-	def length(): # Angie
-		pass
+def seek(): # Sally
+	pass 
 
-	def pos(): # Haley
-		pass 
+def read(): # Sally
+	pass
 
-	def seek(): # Sally
-		pass 
+def write(): # Sally 
+	pass
 
-	def read(): # Sally
-		pass
+def readlines(): # Sally
+	pass
 
-	def write(): # Sally 
-		pass
+def delfile(): #Haley
+	pass
 
-	def readlines(): # Sally
-		pass
+def deldir(): # Haley
+	pass
 
-	def delfile(): #Haley
-		pass
+# def suspend(): 
+# 	pass
 
-	def deldir(): # Haley
-		pass
+# def resume():
+# 	pass
 
-	# def suspend(): 
-	# 	pass
+def chdir():# Haley 
+	pass
 
-	# def resume():
-	# 	pass
+def init(fsname):
 
-	def chdir():# Haley 
-		pass
+	global system
+	global system_name = fsname
+	global system_size = os.path.getsize(fsname)
+	global file_list = []
+	global fat = [ -1 for i in range(system_size)]
 
-	def init(self,fsname):
+	system = open(fsname,'w')
 
-		self.fsname = fsname
-		
-		return 0
+
+
+
+
+	
+	return 0
 
