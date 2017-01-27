@@ -3,6 +3,9 @@ import pickle
 import os
 
 
+def bytes_remaining():
+	pass
+
 def create(): # Angie
 	pass
 
@@ -36,6 +39,15 @@ def delfile(): #Haley
 def deldir(): # Haley
 	pass
 
+def mkdir():
+	pass
+
+def isdir():
+	pass
+
+def listdir():
+	pass
+
 # def suspend(): 
 # 	pass
 
@@ -45,19 +57,22 @@ def deldir(): # Haley
 def chdir():# Haley 
 	pass
 
+
 def init(fsname):
 
 	global system
-	global system_name = fsname
-	global system_size = os.path.getsize(fsname)
-	global file_list = []
-	global fat = [ -1 for i in range(system_size)]
+	global system_name
+	global system_size
+	global system_bytes_left
+	global file_list
+	global fat
 
+	system_name = fsname
 	system = open(fsname,'w')
-
-
-
-
+	system_size = os.path.getsize(fsname)
+	file_list = []
+	fat = [ -1 for i in range(system_size)]
+	system_bytes_left = system_size
 
 	
 	return 0
