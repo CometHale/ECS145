@@ -1,6 +1,7 @@
 from file_class import File
 import pickle
 import os
+import __builtin__
 
 # Change error checking, use raise and Exception()
 
@@ -11,30 +12,34 @@ def create(file_name,nbytes):
 	
 	bytes_left = bytes_remaining(nbytes)
 
-	
-	if bytes_left >= 0:
-		chunk = nbytes * [-1]
-		start = 0
-		for i in range(0,len(fat) - len(chunk)+1):
-			if fat[i:i+len(chunk)] == chunk:
-				start = i
+	# trying to allocate space for file_name
+	try:
+		if bytes_left >= 0:
+			chunk = nbytes * [-1]
+			start = -1
+			for i in range(0,len(fat) - len(chunk)+1):
+				if fat[i:i+len(chunk)] == chunk:
+					start = i
+			
+			if start < 0:
+				raise Exception("Cannot fit file anywhere")
+			
+		else:
+			raise Exception('ERROR ERROR SYSTEM IS NOT DANK:NO SPACE LEFT BRO')
+	except Exception, e:
+		return e.args
 
-		if start > 0:
-			return "ERROR"
-
-	else:
-		return "ERROR ERROR SYSTEM IS NOT DANK:NO SPACE LEFT BRO"
-
-	# need to fill fat start at index start for n bytes
+	# need to fill fat starting at index, start, for n bytes
 	for byte in range(0,nbytes):
 		fat[start + byte] = file_name
 		system.seek(start + byte)
-		system.write(None)
+		system.write('\0') # \0 is a null byte apparently
 
+	# adds file_name to file_list
 	file_list[file_name] = nbytes
 
 
-def open(file_name,mode): 
+def open(file_name,mode):
 	exist = False
 	# if system not suspended
 
@@ -115,22 +120,19 @@ def init(fsname):
 	global system_name
 	global system_size
 	global system_bytes_left
-	global file_list # name, size
+	global file_list # A dictionary; {name: size}
 	global fat # list of file_names
 	global fd_list # list of dictionaries: file_name, pos, length, mode
 
 	system_name = fsname
-	try:
-		system = open(fsname,'w')
-	except:
-		print "ERROR SYSTEM NOT DANK: NATIVE FILE DIDN'T OPEN BRO"
-	
 	system_size = os.path.getsize(fsname)
 	file_list = {}
 	fat = [ -1 for i in range(system_size)]
 	fd_list = [ -1 for i in range(10)]
 	system_bytes_left = system_size
-
+	try:
+		system = __builtin__.open(fsname,'w')
+	except:
+		print "ERROR SYSTEM NOT DANK: NATIVE FILE DIDN'T OPEN BRO"
 	
 	return 0
-
