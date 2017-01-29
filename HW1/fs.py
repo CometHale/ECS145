@@ -113,7 +113,7 @@ def delfile(file_name): #Haley
 	#delete the file from native file
 	fat_start = fat.index(file_name)
 
-	for i in range(0,file_size - 1):
+	for i in range(0,file_size):
 		system.seek(fat_start + i)
 		system.write('\0')
 		fat[fat_start + i] = -1
