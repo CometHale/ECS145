@@ -35,6 +35,7 @@ def create(file_name,nbytes):
 
 	# adds file_name to file_list
 	file_list[file_name] = nbytes
+	file_lengths[file_name] = 0 # initially zero
 	system_bytes_left = bytes_left
 
 def open(file_name,mode):
@@ -50,11 +51,11 @@ def open(file_name,mode):
 
 	try:
 		fd = fd_list.index(-1)
-		fd_list[fd] = {'file_name':file_name,'pos':0,'length':0,'mode':mode}
+		fd_list[fd] = {'file_name':file_name,'pos':0,'length':file_lengths[file_name],'mode':mode}
 		return fd
 	except:
 		fd_list.append({'file_name':file_name,'pos':0,'length':0,'mode':mode})
-		return len(fd_list)
+		return len(fd_list) - 1 # last index of fd_list
 
 
 def close(fd): # Angie
@@ -76,13 +77,18 @@ def write(fd, writebuf):
 	
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 
-	file_obj = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
+	if file_fd_dict['mode'] is not 'w':
+		raise Exception("Not in writing mode")
+
+	fname = file_fd_dict['file_name']
+	#file_obj = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
 	fat_start = fat.index(file_fd_dict['file_name'])
 	system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
 	#after the start index of the file in fat
 	system.write(writebuf)
 	file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
 	file_fd_dict['length'] += len(writebuf) # length is the # of bytes
+	file_lengths[fname] += len(writebuf) # update length in file_lengths too
 
 
 def readlines(): # Sally
@@ -151,7 +157,8 @@ def init(fsname):
 	global system_name
 	global system_size
 	global system_bytes_left
-	global file_list # A dictionary; {name: size}
+	global file_list # A dictionary; {'name1': size1, 'name2': size2, ...}
+	global file_lengths # A dictionary; {'name1': length1, 'name2': length2...}
 	global fat # list of file_names
 	global fd_list # list of dictionaries: file_name, pos, length, mode
 
@@ -159,6 +166,7 @@ def init(fsname):
 	system_size = os.path.getsize(fsname)
 	system_bytes_left = system_size
 	file_list = {}
+	file_lengths = {}
 	fat = [ -1 for i in range(system_size)]
 	fd_list = [ -1 for i in range(10)]
 	
