@@ -9,25 +9,23 @@ def bytes_remaining(nbytes):
 	return system_bytes_left - nbytes
 
 def create(file_name,nbytes): 
-	
+	global system_bytes_left
 	bytes_left = bytes_remaining(nbytes)
 
 	# trying to allocate space for file_name
-	try:
-		if bytes_left >= 0:
-			chunk = nbytes * [-1]
-			start = -1
-			for i in range(0,len(fat) - len(chunk)+1):
-				if fat[i:i+len(chunk)] == chunk:
-					start = i
-			
-			if start < 0:
-				raise Exception("Cannot fit file anywhere")
-			
-		else:
-			raise Exception('ERROR ERROR SYSTEM IS NOT DANK:NO SPACE LEFT BRO')
-	except Exception, e:
-		return e.args
+
+	if bytes_left >= 0:
+		chunk = nbytes * [-1]
+		start = -1
+		for i in range(0,len(fat) - len(chunk)+1):
+			if fat[i:i+len(chunk)] == chunk:
+				start = i
+		
+		if start < 0:
+			raise Exception("Cannot fit file anywhere")
+		
+	else:
+		raise Exception('ERROR ERROR SYSTEM IS NOT DANK:NO SPACE LEFT BRO')
 
 	# need to fill fat starting at index, start, for n bytes
 	for byte in range(0,nbytes):
@@ -37,7 +35,7 @@ def create(file_name,nbytes):
 
 	# adds file_name to file_list
 	file_list[file_name] = nbytes
-
+	system_bytes_left = bytes_left
 
 def open(file_name,mode):
 	exist = False
@@ -59,11 +57,11 @@ def open(file_name,mode):
 		return len(fd_list)
 
 
-def close(): # Angie
-	pass 
+def close(fd): # Angie
+	fd_list[fd] = -1 
 
-def length(): # Angie
-	pass
+def length(fd): # Angie
+	return fd_list[fd]['length']
 
 def pos(fd): # Haley
 	return fd_list[fd].pos
@@ -99,10 +97,10 @@ def delfile(file_name): #Haley
 		raise Exception("File does not exist.")
 
 	for fd in fd_list:
-		if fd_list[fd] != -1:
-			if fd_list[fd]['file_name'] == file_name:
-				file_info = fd_list['file_name']
-				fd_num = fd
+		if fd != -1: # Angie: I changed fd_list[fd] to fd since fd could be a dictionary
+			if fd['file_name'] == file_name:
+				file_info = fd['file_name']
+				#fd_num = fd -- Angie: not sure what this is for??
 				break
 
 	#check if file is open
