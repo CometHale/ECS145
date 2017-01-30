@@ -128,6 +128,7 @@ def readlines(fd): # Sally
 	return system.readlines() #might manually read lines out later
 
 def delfile(file_name): #Haley
+	# make sure to change curr_file_list
 	file_info = None
 
 	if file_name in file_list.keys():
@@ -163,10 +164,11 @@ def delfile(file_name): #Haley
 
 
 def deldir(): # Haley
+	# make sure to change curr_file_list
 	pass
 
-def mkdir(): # Angie
-	pass
+def mkdir(dirname): # Angie
+	file_list[dirname] = {}
 
 def isdir(): # Sally
 	pass
@@ -199,25 +201,30 @@ def resume(): # Angie
 	global system_name
 	global system_size
 	global system_bytes_left
-	global file_list # A dictionary; {'name1': size1, 'name2': size2, ...}
+	global file_list # A dictionary; {'name1': size1, 'name2': size2,'dir': {'file': size} ...}
+	global curr_file_list # make sure to change this list whenever we call chdir
+	global cwd # to determine what files go in curr_file_list
 	global file_lengths # A dictionary; {'name1': length1, 'name2': length2...}
 	global fat # list of file_names
 	global fd_list # list of dictionaries: file_name, pos, length, mode
+
 
 	pickleFile = __builtin__.open(glob.glob("*.fssave")[0], 'rb')
 	
 	system_name = pickle.load(pickleFile)
 	system_bytes_left = pickle.load(pickleFile)
 	file_list = pickle.load(pickleFile)
+	curr_file_list = file_list
+	cwd = '~/'
 	file_lengths = pickle.load(pickleFile)
 	fat = pickle.load(pickleFile)
 	fd_list = pickle.load(pickleFile)
-
 	system = __builtin__.open(system_name, 'r+')
 	system_size = os.path.getsize(system_name)
 	pickleFile.close()
 
 def chdir():# Haley 
+	#make sure to change curr_file_list
 	pass
 
 
@@ -227,7 +234,9 @@ def init(fsname):
 	global system_name
 	global system_size
 	global system_bytes_left
-	global file_list # A dictionary; {'name1': size1, 'name2': size2, ...}
+	global file_list # A dictionary; {'name1': size1, 'name2': size2,'dir': {'file': size} ...}
+	global curr_file_list # make sure to change this list whenever we call chdir
+	global cwd # to determine what files go in curr_file_list
 	global file_lengths # A dictionary; {'name1': length1, 'name2': length2...}
 	global fat # list of file_names
 	global fd_list # list of dictionaries: file_name, pos, length, mode
@@ -237,6 +246,8 @@ def init(fsname):
 	system_bytes_left = system_size
 	file_list = {}
 	file_lengths = {}
+	curr_file_list = file_list
+	cwd = '~/'
 	fat = [ -1 for i in range(system_size)]
 	fd_list = [ -1 for i in range(10)]
 	
