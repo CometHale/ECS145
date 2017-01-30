@@ -59,7 +59,7 @@ def open(file_name,mode):
 
 
 def close(fd): # Angie
-	fd_list[fd] = -1 
+	fd_list[fd] = -1 # frees up the space in fd_list
 
 def length(fd): # Angie
 	return fd_list[fd]['length']
@@ -142,7 +142,10 @@ def listdir(): # Sally
 	pass
 
 def suspend(): # Angie
-	pass
+	
+	for fd in fd_list:
+		if fd['mode'] = 'w':
+			raise Exception("There are files still opened for writing")
 
 def resume(): # Haley
 	pass
