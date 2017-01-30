@@ -1,6 +1,7 @@
 from file_class import File
 import pickle
 import os
+import glob
 import __builtin__
 
 # Change error checking, use raise and Exception()
@@ -144,11 +145,45 @@ def listdir(): # Sally
 def suspend(): # Angie
 	
 	for fd in fd_list:
-		if fd['mode'] = 'w':
-			raise Exception("There are files still opened for writing")
+		if type(fd) is dict:
+			if fd['mode'] == 'w':
+				raise Exception("There are files still opened for writing")
 
-def resume(): # Haley
-	pass
+	pickleFile = __builtin__.open(system_name + ".fssave", "wb")
+
+	system.close()
+	pickle.dump(system_name, pickleFile)
+	pickle.dump(system_bytes_left, pickleFile)
+	pickle.dump(file_list, pickleFile)
+	pickle.dump(file_lengths, pickleFile)
+	pickle.dump(fat, pickleFile)
+	pickle.dump(fd_list, pickleFile)
+
+	pickleFile.close()
+
+def resume(): # Angie
+
+	global system
+	global system_name
+	global system_size
+	global system_bytes_left
+	global file_list # A dictionary; {'name1': size1, 'name2': size2, ...}
+	global file_lengths # A dictionary; {'name1': length1, 'name2': length2...}
+	global fat # list of file_names
+	global fd_list # list of dictionaries: file_name, pos, length, mode
+
+	pickleFile = __builtin__.open(glob.glob("*.fssave")[0], 'rb')
+	
+	system_name = pickle.load(pickleFile)
+	system_bytes_left = pickle.load(pickleFile)
+	file_list = pickle.load(pickleFile)
+	file_lengths = pickle.load(pickleFile)
+	fat = pickle.load(pickleFile)
+	fd_list = pickle.load(pickleFile)
+
+	system = __builtin__.open(system_name, 'w')
+	system_size = os.path.getsize(system_name)
+	pickleFile.close()
 
 def chdir():# Haley 
 	pass
