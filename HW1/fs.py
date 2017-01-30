@@ -171,9 +171,11 @@ def mkdir(dirname): # Angie
 	file_list[dirname] = {}
 
 def isdir(): # Sally
+	# make sure to include '.', '..'
 	pass
 
 def listdir(): # Sally
+	# make sure to include '.', '..'
 	pass
 
 def suspend(): # Angie
