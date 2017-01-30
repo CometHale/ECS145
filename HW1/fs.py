@@ -181,7 +181,7 @@ def resume(): # Angie
 	fat = pickle.load(pickleFile)
 	fd_list = pickle.load(pickleFile)
 
-	system = __builtin__.open(system_name, 'w')
+	system = __builtin__.open(system_name, 'r+')
 	system_size = os.path.getsize(system_name)
 	pickleFile.close()
 
