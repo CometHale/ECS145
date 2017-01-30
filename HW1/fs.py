@@ -68,13 +68,37 @@ def length(fd): # Angie
 def pos(fd): # Haley
 	return fd_list[fd].pos
 
-def seek(): # Sally
-	pass 
+def seek(fd, pos): # Sally
+  file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 
-def read(): # Sally
-	pass
+  nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
 
+  #error check: pos is negative, larger than file size (nbytes), or makes bytes non-contiguous (pos > length)
+  if pos < 0:
+    raise Exception("pos argument cannot be negative")
+  if pos > nbytes - 1:
+    raise Exception("pos argument cannot be bigger than the file size")
+  if pos > file_fd_dict['length']:  
+    raise Exception("bytes must be contiguous")
+  
+  file_fd_dict['pos'] = pos;  
+
+def read(fd, nbytes): # Sally
+  file_fd_dict = fd_list[fd] 
+  nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
+  fat_start = fat.index(file_fd_dict['file_name'])
+  system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
+  
+  #error-check: if read extends beyond the current LENGTH of the file
+  if nbytes > file_fd_dict['length']:
+    raise Exception("read goes over size of file")
+  
+  file_fd_dict['pos'] += nbytes
+  
+  return system.read(nbytes)
+  
 def write(fd, writebuf):
+<<<<<<< HEAD
 	
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 
@@ -90,10 +114,32 @@ def write(fd, writebuf):
 	file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
 	file_fd_dict['length'] += len(writebuf) # length is the # of bytes
 	file_lengths[fname] += len(writebuf) # update length in file_lengths too
+=======
+  file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
+
+  nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
+  fat_start = fat.index(file_fd_dict['file_name'])
+  system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
+  
+  #error-check (if writebuf is bigger than file size)
+  if len(writebuf) > nbytes:
+    raise Excpetion("not enough bytes to write")
+    
+	#after the start index of the file in fat
+  system.write(writebuf)
+  file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
+  file_fd_dict['length'] += len(writebuf) # length is the # of bytes
+>>>>>>> origin/master
 
 
-def readlines(): # Sally
-	pass
+def readlines(fd): # Sally
+  file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
+
+  nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
+  fat_start = fat.index(file_fd_dict['file_name'])
+  system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
+  
+  return system.readlines() #might manually read lines out later
 
 def delfile(file_name): #Haley
 	file_info = None
