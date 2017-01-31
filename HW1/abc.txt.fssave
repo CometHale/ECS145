@@ -8,7 +8,13 @@ I3
 sS'f2'
 p2
 I2
-s.(dp0
+sS'newdir'
+p3
+(dp4
+S'newnewdir'
+p5
+(dp6
+ss.(dp0
 S'f1'
 p1
 I3

@@ -10,6 +10,7 @@ def bytes_remaining(nbytes):
 	return system_bytes_left - nbytes
 
 def create(file_name,nbytes): 
+	#also deal with creating files in directories
 	global system_bytes_left
 	bytes_left = bytes_remaining(nbytes)
 
@@ -42,7 +43,8 @@ def create(file_name,nbytes):
 def open(file_name,mode):
 	exist = False
 	# if system not suspended
-	
+	if system.closed:
+		raise Exception("System is suspended: Cannot open file.")
 	#if file doesn't exist
 	if file_name in file_list.keys():
 		exist = True
@@ -66,7 +68,7 @@ def length(fd): # Angie
 	return fd_list[fd]['length']
 
 def pos(fd): # Haley
-	return fd_list[fd].pos
+	return fd_list[fd]['pos']
 
 def seek(fd, pos): # Sally
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
@@ -75,11 +77,11 @@ def seek(fd, pos): # Sally
 
 	#error check: pos is negative, larger than file size (nbytes), or makes bytes non-contiguous (pos > length)
 	if pos < 0:
-	raise Exception("pos argument cannot be negative")
+		raise Exception("pos argument cannot be negative")
 	if pos > nbytes - 1:
-	raise Exception("pos argument cannot be bigger than the file size")
-	if pos > file_fd_dict['length']:  
-	raise Exception("bytes must be contiguous")
+		raise Exception("pos argument cannot be bigger than the file size")
+	if pos > file_fd_dict['length']: 
+		raise Exception("bytes must be contiguous")
 
 	file_fd_dict['pos'] = pos;  
 
@@ -91,7 +93,7 @@ def read(fd, nbytes): # Sally
 
 	#error-check: if read extends beyond the current LENGTH of the file
 	if nbytes > file_fd_dict['length']:
-	raise Exception("read goes over size of file")
+		raise Exception("read goes over size of file")
 
 	file_fd_dict['pos'] += nbytes
 
@@ -128,7 +130,7 @@ def readlines(fd): # Sally
 	return system.readlines() #might manually read lines out later
 
 def delfile(file_name): #Haley
-	# make sure to change curr_file_list
+	
 	file_info = None
 
 	if file_name in file_list.keys():
@@ -140,16 +142,12 @@ def delfile(file_name): #Haley
 		if fd != -1: # Angie: I changed fd_list[fd] to fd since fd could be a dictionary
 			if fd['file_name'] == file_name:
 				file_info = fd['file_name']
-				#fd_num = fd -- Angie: not sure what this is for??
 				break
 
 	#check if file is open
-	if file_info is not None: #if we choose to 'delete' fds in close()
+	if file_info is not None:
 		raise Exception("File is open.")
 	
-	# if file_info['mode'] == "r" or file_info['mode'] == "w": 
-	# 	#if we don't 'delete' fds in close
-	# 	raise Exception("File is open.")
 	#delete the file from native file
 	fat_start = fat.index(file_name)
 
@@ -158,17 +156,36 @@ def delfile(file_name): #Haley
 		system.write('\0')
 		fat[fat_start + i] = -1
 
-	# fd_list[fd_num] = None
-	file_list.pop(file_name)
-
-
-
-def deldir(): # Haley
 	# make sure to change curr_file_list
-	pass
+	file_list.pop(file_name) # this needs to change: what if it's in a dir?
+
+
+
+def deldir(dirname): # Haley
+	# make sure to change curr_file_list
+	global cwd
+	global curr_file_list
+	#check to see if the dirname is a dir
+	# if not isdir(dirname):
+	# 	raise Exception("File is not a directory: use delfile instead.")
+	#check to see if currently in dir
+	last_slash = cwd.rfind("/")
+	prev_dir_name = cwd[last_slash + 1:len(cwd)]
+	if prev_dir_name == cwd:
+		raise Exception("Currently in " + dirname + ":Cannot be delete directory.")
+	if dirname not in curr_file_list:
+		raise Exception(dirname + ":No such directory.")
+
+	curr_file_list.pop(dirname)
 
 def mkdir(dirname): # Angie
-	file_list[dirname] = {}
+	#Haley: changed this so we can mkdirs in other dirs
+	if cwd == "~/":
+		file_list[dirname] = {}
+	else: 
+		last_slash = cwd.rfind("/")
+		prev_dir_name = cwd[last_slash + 1:len(cwd)]
+		file_list[prev_dir_name][dirname] = {}
 
 def isdir(): # Sally
 	# make sure to include '.', '..'
@@ -217,6 +234,7 @@ def resume(): # Angie
 	system_bytes_left = pickle.load(pickleFile)
 	file_list = pickle.load(pickleFile)
 	curr_file_list = file_list
+	print curr_file_list
 	cwd = '~/'
 	file_lengths = pickle.load(pickleFile)
 	fat = pickle.load(pickleFile)
@@ -225,9 +243,37 @@ def resume(): # Angie
 	system_size = os.path.getsize(system_name)
 	pickleFile.close()
 
-def chdir():# Haley 
+def chdir(dirname):# Haley 
 	#make sure to change curr_file_list
-	pass
+	# . and ..
+	# might need to be able to handle a long string of dirs
+
+	# Haley: Have to declare the globals 
+	#in any function that assigns to them
+	#http://stackoverflow.com/questions/423379/using-global-variables-in-a-function-other-than-the-one-that-created-them
+	global curr_file_list
+	global cwd
+	global file_list
+	# "." doesn't change the cwd
+	if dirname == "..":
+		last_slash = cwd.rfind("/") # finds the last occurrence of the input substring in the string
+		cwd = cwd[0:last_slash+1]
+		last_slash = cwd.rfind("/")
+		prev_dir_name = cwd[last_slash:len(cwd) - 1]
+		if prev_dir_name is not '':
+			curr_file_list = file_list[prev_dir_name]
+		else: # the previous directory was the home dir
+			curr_file_list = file_list
+		print cwd
+	elif dirname in curr_file_list:
+		cwd = cwd + dirname
+		try:
+			curr_file_list = file_list[dirname]
+		except:
+			prev_dir_name = cwd[last_slash:len(cwd) - 1]
+			curr_file_list = file_list[prev_dir_name][dirname]
+	else:
+		raise Exception(dirname + ":No such directory.")
 
 
 def init(fsname):
