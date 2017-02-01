@@ -266,11 +266,17 @@ def chdir(dirname):# Haley
 			curr_file_list = file_list
 		print cwd
 	elif dirname in curr_file_list:
-		cwd = cwd + dirname
+		last_slash = cwd.rfind("/")
+		prev_dir_name = cwd[last_slash+1:len(cwd)]
+
+		if cwd != "~/":
+			cwd = cwd + "/" + dirname
+		else:
+			cwd = cwd + dirname
+
 		try:
 			curr_file_list = file_list[dirname]
 		except:
-			prev_dir_name = cwd[last_slash:len(cwd) - 1]
 			curr_file_list = file_list[prev_dir_name][dirname]
 	else:
 		raise Exception(dirname + ":No such directory.")
