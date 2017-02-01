@@ -178,14 +178,55 @@ def deldir(dirname): # Haley
 
 	curr_file_list.pop(dirname)
 
+def traversedir(path):
+	# goes through file_list to return the directory specified in the last portion of the path
+	dirlist = path.split('/')
+	del dirlist[0]
+	dir_count = len(dirlist)
+	directory = file_list[dirlist[0]] # dir_list[0] = first directory
+	for i in range(dir_count):
+		if i == dir_count - 1:
+			break
+		directory = directory[dirlist[i+1]]
+	return directory
+
 def mkdir(dirname): # Angie
 	#Haley: changed this so we can mkdirs in other dirs
-	if cwd == "~/":
+	if dirname.count('/') == 0: # if dirname is a relative path
+		if cwd == "~/":
+			file_list[dirname] = {}
+		else: # find the right directory in file_list to add dirname to
+			'''dir_list = cwd.split('/')
+			del dir_list[0] # removes first element '~'
+			dir_count = len(dir_list)
+			directory = file_list[dir_list[0]] # dir_list[0] = first directory
+			for i in range(dir_count):
+				if i == dir_count - 1:
+					break
+				directory = directory[dir_list[i+1]]'''
+			traversedir(cwd)[dirname] = {}
+	else: # if dirname is an absolute path
+		'''dir_list = dirname.split('/')
+		del dir_list[0]
+		name = dir_list.pop() # get the name of the directory to make
+		dir_count = len(dir_list)
+		directory = file_list[dir_list[0]]
+		for i in range(dir_count):
+			if i == dir_count - 1:
+				break
+			directory = directory[dir_list[i+1]]
+		directory[name] = {}'''
+		last_slash = dirname.rfind('/')
+		name = dirname[last_slash+1:len(dirname)] 
+		fullpath = dirname[:last_slash]
+		traversedir(fullpath)[name] = {}
+
+	'''if cwd == "~/":
 		file_list[dirname] = {}
 	else: 
 		last_slash = cwd.rfind("/")
 		prev_dir_name = cwd[last_slash + 1:len(cwd)]
-		file_list[prev_dir_name][dirname] = {}
+		file_list[prev_dir_name][dirname] = {}'''
 
 def isdir(): # Sally
 	# make sure to include '.', '..'
