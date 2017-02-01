@@ -181,7 +181,7 @@ def deldir(dirname): # Haley
 def traversedir(path):
 	# goes through file_list to return the directory specified in the last portion of the path
 	dirlist = path.split('/')
-	del dirlist[0]
+	del dirlist[0] # deletes '~' from the list
 	dir_count = len(dirlist)
 	directory = file_list[dirlist[0]] # dir_list[0] = first directory
 	for i in range(dir_count):
@@ -199,8 +199,8 @@ def mkdir(dirname): # Angie
 			traversedir(cwd)[dirname] = {}
 	else: # if dirname is an absolute path
 		last_slash = dirname.rfind('/')
-		name = dirname[last_slash+1:len(dirname)] 
-		fullpath = dirname[:last_slash]
+		name = dirname[last_slash+1:len(dirname)]  # gets the name of the directory to create
+		fullpath = dirname[:last_slash] # gets the full path of the directory to create dirname in
 		traversedir(fullpath)[name] = {}
 
 def isdir(): # Sally
