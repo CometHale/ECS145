@@ -33,7 +33,7 @@ def create(file_name,nbytes):
 	for byte in range(0,nbytes):
 		fat[start + byte] = file_name
 		system.seek(start + byte)
-		system.write("\0") # \0 is a null byte apparently
+		system.write("\x00") # \0 is a null byte apparently
 
 	# adds file_name to file_list
 	file_list[file_name] = nbytes
@@ -80,7 +80,7 @@ def seek(fd, pos): # Sally
 		raise Exception("Error: pos argument cannot be negative")
 	if pos > nbytes - 1:
 		raise Exception("Error: pos argument cannot be bigger than the file size")
-	if pos > file_fd_dict['length']: 
+	if pos > file_fd_dict['length'] + 1: 
 		raise Exception("Error: Bytes must be contiguous")
 
 	file_fd_dict['pos'] = pos;  
@@ -125,7 +125,7 @@ def readlines(fd): # Sally
 
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
 	fat_start = fat.index(file_fd_dict['file_name'])
-	system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
+	system.seek(fat_start) # Seek to the current filepointer position
 
 	return system.readlines() #might manually read lines out later
 
@@ -201,13 +201,44 @@ def mkdir(dirname): # Angie
 		fullpath = dirname[:last_slash] # gets the full path of the directory to create dirname in
 		traversedir(fullpath)[name] = {}
 
-def isdir(): # Sally
+def isdir(dirname): # Sally
 	# make sure to include '.', '..'
-	pass
+  if dirname == '.' or dirname == "..": #look at current directory 
+    return True #they're obviously directories lol
+  else: #relative or absolute path
+    if dirname.count('/') == 0: #look in current dir
+      if isinstance(curr_file_list[dirname], (int, long)): #a file if True
+        return False
+      else:
+        return True
+    else: #must traverse thru multiple directories (using traverse(dir)
+      #cut off the last part (ie. a/b/c we change to a/b)
+      checkDir = dirname[dirname.rfind('/') : ] #finds last occurence of / (ie. checkDir is now /c)
+      checkDir = checkDir[1:] #cut off the / (ie. check Dir is now c)
+      dir = traversedir(dirname[: dirname.rfind('/')]) #traversedir(a/b)
+      if isinstance(dir[dirname], (int, long)):
+        return False
+      else: 
+        return True
 
-def listdir(): # Sally
+def listdir(dirname): # Sally
 	# make sure to include '.', '..'
-	pass
+  list = []
+  
+  if dirname == '.': # its the current directory
+    return curr_file_list
+  elif dirname == "..": #find the previous directory
+    #cwd is the absolute path
+    dirPath = cwd[: cwd.find('/')] #get rid of last / (ie. a/b/c -> a/b)
+  else: #absolute or relative path
+    dirPath = dirname
+   
+  dir = traversedir(dirPath) #we get a dictionary
+  #put keys into a list
+  for key in dir:
+    list.append(key)
+   
+  return list
 
 def suspend(): # Angie
 	
