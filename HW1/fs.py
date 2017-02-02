@@ -178,8 +178,8 @@ def deldir(dirname): # Haley
 
 def traversedir(path):
 	# goes through file_list to return the directory specified in the last portion of the path
-	dirlist = path.split('/')
-	del dirlist[0] # deletes '~' from the list
+	dirlist = path.split('/') #/a/b/c -> ["", a, b, c]
+	del dirlist[0] # deletes "" from the list 
 	dir_count = len(dirlist)
 	directory = file_list[dirlist[0]] # dir_list[0] = first directory
 	for i in range(dir_count):
@@ -206,7 +206,7 @@ def isdir(dirname): # Sally
   if dirname == '.' or dirname == "..": #look at current directory 
     return True #they're obviously directories lol
   else: #relative or absolute path
-    if dirname.count('/') == 0: #look in current dir
+    if dirname.count('/') == 0: #look in current dir (relative path)
       if isinstance(curr_file_list[dirname], (int, long)): #a file if True
         return False
       else:
@@ -215,7 +215,7 @@ def isdir(dirname): # Sally
       #cut off the last part (ie. a/b/c we change to a/b)
       checkDir = dirname[dirname.rfind('/') : ] #finds last occurence of / (ie. checkDir is now /c)
       checkDir = checkDir[1:] #cut off the / (ie. check Dir is now c)
-      dir = traversedir(dirname[: dirname.rfind('/')]) #traversedir(a/b)
+      dir = traversedir(cwd + dirname[: dirname.rfind('/')]) #traversedir(a/b)
       if isinstance(dir[checkDir], (int, long)):
         return False
       else: 
@@ -231,7 +231,10 @@ def listdir(dirname): # Sally
     #cwd is the absolute path
     dirPath = cwd[: cwd.find('/')] #get rid of last / (ie. a/b/c -> a/b)
   else: #absolute or relative path
-    dirPath = dirname
+    if dirname[0] == '/': #absolute path
+      dirPath = dirname
+    else: #relative path ->traverseDir needs an absolute path
+      dirPath = cwd + dirname
    
   dir = traversedir(dirPath) #we get a dictionary
   #put keys into a list
