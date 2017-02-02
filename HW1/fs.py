@@ -216,7 +216,7 @@ def isdir(dirname): # Sally
       checkDir = dirname[dirname.rfind('/') : ] #finds last occurence of / (ie. checkDir is now /c)
       checkDir = checkDir[1:] #cut off the / (ie. check Dir is now c)
       dir = traversedir(dirname[: dirname.rfind('/')]) #traversedir(a/b)
-      if isinstance(dir[dirname], (int, long)):
+      if isinstance(dir[checkDir], (int, long)):
         return False
       else: 
         return True
