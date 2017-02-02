@@ -24,10 +24,10 @@ def create(file_name,nbytes):
 				start = i
 		
 		if start < 0:
-			raise Exception("Cannot fit file anywhere")
+			raise Exception("Error: No contiguous space large enough for file.")
 		
 	else:
-		raise Exception('ERROR ERROR SYSTEM IS NOT DANK:NO SPACE LEFT BRO')
+		raise Exception("Error: No Space left in native file.")
 
 	# need to fill fat starting at index, start, for n bytes
 	for byte in range(0,nbytes):
@@ -44,13 +44,13 @@ def open(file_name,mode):
 	exist = False
 	# if system not suspended
 	if system.closed:
-		raise Exception("System is suspended: Cannot open file.")
+		raise Exception("Error: System is suspended; cannot open file.")
 	#if file doesn't exist
 	if file_name in file_list.keys():
 		exist = True
 	
 	if not exist:
-		raise Exception("ERROR OPENING FILE: FILE DON'T EXIST BRO")
+		raise Exception("Error: File doesn't exist.")
 
 	try:
 		fd = fd_list.index(-1)
@@ -77,11 +77,11 @@ def seek(fd, pos): # Sally
 
 	#error check: pos is negative, larger than file size (nbytes), or makes bytes non-contiguous (pos > length)
 	if pos < 0:
-		raise Exception("pos argument cannot be negative")
+		raise Exception("Error: pos argument cannot be negative")
 	if pos > nbytes - 1:
-		raise Exception("pos argument cannot be bigger than the file size")
+		raise Exception("Error: pos argument cannot be bigger than the file size")
 	if pos > file_fd_dict['length']: 
-		raise Exception("bytes must be contiguous")
+		raise Exception("Error: Bytes must be contiguous")
 
 	file_fd_dict['pos'] = pos;  
 
@@ -93,7 +93,7 @@ def read(fd, nbytes): # Sally
 
 	#error-check: if read extends beyond the current LENGTH of the file
 	if nbytes > file_fd_dict['length']:
-		raise Exception("read goes over size of file")
+		raise Exception("Error: Read goes over size of file")
 
 	file_fd_dict['pos'] += nbytes
 
@@ -103,7 +103,7 @@ def write(fd, writebuf):
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 
 	if file_fd_dict['mode'] is not 'w':
-		raise Exception("Not in writing mode")
+		raise Exception("Error: Not in writing mode")
 
 	fname = file_fd_dict['file_name']
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
@@ -112,7 +112,7 @@ def write(fd, writebuf):
 
 	#error-check (if writebuf is bigger than file size)
 	if len(writebuf) > nbytes:
-		raise Excpetion("not enough bytes to write")
+		raise Excpetion("Error: Not enough bytes to write")
 
 	#after the start index of the file in fat
 	system.write(writebuf)
@@ -136,7 +136,7 @@ def delfile(file_name): #Haley
 	if file_name in file_list.keys():
 		file_size = file_list[file_name]
 	else:
-		raise Exception("File does not exist.")
+		raise Exception("Error: File does not exist.")
 
 	for fd in fd_list:
 		if fd != -1: # Angie: I changed fd_list[fd] to fd since fd could be a dictionary
@@ -146,7 +146,7 @@ def delfile(file_name): #Haley
 
 	#check if file is open
 	if file_info is not None:
-		raise Exception("File is open.")
+		raise Exception("Error: File is open.")
 	
 	#delete the file from native file
 	fat_start = fat.index(file_name)
@@ -159,8 +159,6 @@ def delfile(file_name): #Haley
 	# make sure to change curr_file_list
 	file_list.pop(file_name) # this needs to change: what if it's in a dir?
 
-
-
 def deldir(dirname): # Haley
 	# make sure to change curr_file_list
 	global cwd
@@ -172,9 +170,9 @@ def deldir(dirname): # Haley
 	last_slash = cwd.rfind("/")
 	prev_dir_name = cwd[last_slash + 1:len(cwd)]
 	if prev_dir_name == cwd:
-		raise Exception("Currently in " + dirname + ":Cannot be delete directory.")
+		raise Exception("Error: Currently in " + dirname + ":Cannot delete an active directory.")
 	if dirname not in curr_file_list:
-		raise Exception(dirname + ":No such directory.")
+		raise Exception("Error:" + dirname + ":No such directory.")
 
 	curr_file_list.pop(dirname)
 
@@ -295,7 +293,7 @@ def chdir(dirname):# Haley
 		except:
 			curr_file_list = file_list[prev_dir_name][dirname]
 	else:
-		raise Exception(dirname + ":No such directory.")
+		raise Exception("Error:" + dirname + ":No such directory.")
 
 
 def init(fsname):
@@ -324,6 +322,6 @@ def init(fsname):
 	try:
 		system = __builtin__.open(fsname,'w')
 	except:
-		print "ERROR SYSTEM NOT DANK: NATIVE FILE DIDN'T OPEN BRO"
+		raise Exception("Error opening the native file.")
 	
 	return 0
