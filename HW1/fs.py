@@ -14,6 +14,49 @@ def create(file_name,nbytes):
 	global system_bytes_left
 	bytes_left = bytes_remaining(nbytes)
 
+	# first go to the specified directory's dictionary:
+
+	# cases where file_name is a path
+	if file_name.count('/') != 0: 
+		dirlist = file_name.split('/')
+		name = dirlist.pop() # gets the actual file name from the path
+
+		if dirlist[0] == '.': # Case 1: ./a/b/c
+			del dirlist[0]
+			if len(dirlist) > 0: # if file name is not just ./a
+				filepath = cwd + '/'.join(dirlist) # cwd + a/b/c
+				filelist = traversedir(filepath)
+			else: # file name is just ./a
+				if cwd != "~/": 
+					filelist = traversedir(cwd)
+				else:
+					filelist = file_list
+
+		elif dirlist[0] == "..": # Case 2: ../a/b/c
+			del dirlist[0]
+			prevdir = cwd.split('/') 
+			prevdirpath = '/'.join(prevdir[:-1]) # construct full path of previous directory
+			if len(dirlist) > 0: # if file name is not just ../a
+				filepath = prevdirpath + '/'.join(dirlist)
+				filelist = traversedir(filepath)
+			else: # file name is just ../a
+				filelist = traversedir(prevdirpath) # create file in previous dir
+
+		elif dirlist[0] == "": # Case 3: file_name is an absolute path: /a/b/c
+			filepath = '/' + '/'.join(dirlist)
+			filelist = traversedir(filepath)
+
+		else: # Case 4: file_name is relative path: a/b/c
+			filepath = cwd + '/'.join(dirlist)
+			filelist = traversedir(filepath)
+
+	# file_name is literally just the file name
+	else:
+		if cwd != "~/": 
+			filelist = traversedir(cwd) # go to the current working directory's dictionary
+		else:
+			filelist = file_list
+
 	# trying to allocate space for file_name
 
 	if bytes_left >= 0:
@@ -31,13 +74,13 @@ def create(file_name,nbytes):
 
 	# need to fill fat starting at index, start, for n bytes
 	for byte in range(0,nbytes):
-		fat[start + byte] = file_name
+		fat[start + byte] = name
 		system.seek(start + byte)
 		system.write("\x00") # \0 is a null byte apparently
 
 	# adds file_name to file_list
-	file_list[file_name] = nbytes
-	file_lengths[file_name] = 0 # initially zero
+	filelist[name] = nbytes
+	file_lengths[name] = 0 # initially zero
 	system_bytes_left = bytes_left
 
 def open(file_name,mode):
