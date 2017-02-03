@@ -64,25 +64,18 @@ def create(file_name,nbytes):
 
 	# trying to allocate space for file_name
 
-	if bytes_left >= 0:
-		chunk = nbytes * [-1]
-		start = -1
-		for i in range(0,len(fat) - len(chunk)+1):
-			if fat[i:i+len(chunk)] == chunk:
-				start = i
-		
-		if start < 0:
-			raise Exception("Error: No contiguous space large enough for file.")
-		
+	if bytes_left >= 0:	
+		numBytes = nbytes
+		for i in range(0, len(fat)):
+			if fat[i] == -1 and numBytes != 0: #index is empt
+				fat[i] = name
+				system.seek(i) #write in native as well
+				system.write("\x00") # \0 is a null byte apparently
+				numBytes -= 1
+	
 	else:
 		raise Exception("Error: No Space left in native file.")
-
-	# need to fill fat starting at index, start, for n bytes
-	for byte in range(0,nbytes):
-		fat[start + byte] = name
-		system.seek(start + byte)
-		system.write("\x00") # \0 is a null byte apparently
-
+		
 	# adds file_name to file_list
 	filelist[name] = nbytes
 	file_lengths[name] = 0 # initially zero
@@ -177,6 +170,14 @@ def readlines(fd): # Sally
 
 	return system.readlines() #might manually read lines out later
 
+def delFileInDir(file_name, list): #helper function 
+	if file_name in list:
+		del list[file_name]
+	else: 
+		for file in list:
+			if isinstance(file, dict): #directory
+				delFileInDir(file_name, file)
+	
 def delfile(file_name): #Haley
 	
 	file_info = None
@@ -197,16 +198,15 @@ def delfile(file_name): #Haley
 		raise Exception("Error: File is open.")
 	
 	#delete the file from native file
-	fat_start = fat.index(file_name)
-
-	for i in range(0,file_size):
-		system.seek(fat_start + i)
-		system.write('\0')
-		fat[fat_start + i] = -1
+	for i in range(0, len(fat)):
+		if fat[i] == file_name: #clean this index out
+			system.seek(i)
+			system.write('\0')
+			fat[i] = -1
 
 	# make sure to change curr_file_list
-	file_list.pop(file_name) # this needs to change: what if it's in a dir?
-
+	deleteFileInDir(file_name, file_list)	#deletes with nested dictionaries too
+		
 def deldir(dirname): # Haley
 	# make sure to change curr_file_list
 	global cwd
