@@ -185,12 +185,21 @@ def write(fd, writebuf):
 
 def readlines(fd): # Sally
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
-
+	list = []
+	string = ""
+	
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	fat_start = fat.index(file_fd_dict['file_name'])
-	system.seek(fat_start) # Seek to the current filepointer position
+	list = posInFat(file_fd_dict['file_name'])
 
-	return system.readlines() #might manually read lines out later
+	for i in range(0, len(list)):
+		system.seek(fat[list[i]])
+		c = system.read(1)
+		string = string + c
+		if c == '\0xa':#new line character
+			list.append(string)
+			string = "" #reset the string
+	
+	return system.readlines() #might \manually read lines out later
 
 def delFileInDir(file_name, list): #helper function 
 	if file_name in list:
