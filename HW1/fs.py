@@ -224,7 +224,7 @@ def delfile(file_name): #Haley
 	for i in range(0, len(fat)):
 		if fat[i] == file_name: #clean this index out
 			system.seek(i)
-			system.write('\0')
+			system.write('\x00')
 			fat[i] = -1
 
 	# make sure to change curr_file_list
