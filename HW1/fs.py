@@ -272,6 +272,10 @@ def mkdir(dirname): # Angie
 		if dirname[0] == '/': # dirname is an absolute path
 			fullpath = dirname[:last_slash] # gets the full path of the directory to create dirname in
 			traversedir(fullpath)[name] = {}
+		elif dirname[0] == ".." # create dirname in prev dir **NEEDS TO BE TESTED**
+			prevdirpath = cwd[:cwd.rfind('/')]
+			fullpath = prevdirpath + dirname[dirname.find('/'):last_slash]
+			traversedir(prevdirpath)[name] = {}
 		elif dirname[0] == '.': # create dirname in cwd
 			curr_file_list[name] = {}
 
