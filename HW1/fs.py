@@ -57,6 +57,7 @@ def create(file_name,nbytes):
 
 	# file_name is literally just the file name
 	else:
+		name = file_name
 		if cwd != "~/": 
 			filelist = traversedir(cwd) # go to the current working directory's dictionary
 		else:
