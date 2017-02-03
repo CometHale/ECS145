@@ -17,48 +17,15 @@ def create(file_name,nbytes):
 
 	# cases where file_name is a path
 	if file_name.count('/') != 0: 
-		dirlist = file_name.split('/')
-		name = dirlist.pop() # gets the actual file name from the path
-
-		if dirlist[0] == '.': # Case 1: ./a/b/c
-			del dirlist[0]
-			if len(dirlist) > 0: # if file name is not just ./a
-				filepath = cwd + '/'.join(dirlist) # cwd + a/b/c
-				filelist = traversedir(filepath)
-			else: # file name is just ./a
-				if cwd != "/": 
-					filelist = traversedir(cwd)
-				else:
-					filelist = file_list
-
-		elif dirlist[0] == "..": # Case 2: ../a/b/c
-			del dirlist[0]
-			prevdir = cwd.split('/') 
-			if prevdir[:-1] == ['']: # previous dir is root
-				prevdirpath = "/"
-			else:
-				prevdirpath = '/'.join(prevdir[:-1]) # construct full path of previous directory
-				
-			if len(dirlist) > 0: # if file name is not just ../a
-				filepath = prevdirpath + '/'.join(dirlist)
-				filelist = traversedir(filepath)
-			else: # file name is just ../a
-				filelist = traversedir(prevdirpath) # create file in previous dir
-
-		elif dirlist[0] == "": # Case 3: file_name is an absolute path: /a/b/c
-			del dirlist[0]
-			filepath = '/' + '/'.join(dirlist)
-			filelist = traversedir(filepath)
-
-		else: # Case 4: file_name is relative path: a/b/c
-			filepath = cwd + '/'.join(dirlist)
-			filelist = traversedir(filepath)
+		name = file_name[file_name.rfind('/')+1:] # gets the actual file name from the path
+		path = file_name[:file_name.rfind('/')]
+		filelist = traversedir(path)
 
 	# file_name is literally just the file name
 	else:
 		name = file_name
 		if cwd != "/": 
-			filelist = traversedir(cwd) # go to the current working directory's dictionary
+			filelist = curr_file_list # go to the current working directory's dictionary
 		else:
 			filelist = file_list
 
@@ -258,10 +225,27 @@ def deldir(dirname): # Haley
 
 def traversedir(path):
 	# goes through file_list to return the directory specified in the last portion of the path
-	dirlist = path.split('/') #/a/b/c -> ["", a, b, c]
+	# only pass PATHS
+
+	# paths are either ./a/b, ../a/b, /a/b, or a/b
+	firstpart = path[:path.find('/')]
+	if firstpart == "..": # ../a/b
+		path = path[path.find('/')+1:] # a/b
+		prevdirpath = cwd[:cwd.rfind('/') + 1] # /s/d/
+		dirlist = prevdirpath + path # dirlist = /s/d/a/b
+	elif firstpart == ".": # ./a/b
+		path = path[path.find('/'):] # /a/b 
+		dirlist = cwd + path
+	elif firstpart == '': # absolute paths
+		dirlist = path
+	else: # a/b
+		dirlist = cwd + '/' + path
+
+	dirlist = dirlist.split('/') #/a/b/c -> ["", a, b, c]
 	del dirlist[0] # deletes "" from the list 
 	dir_count = len(dirlist)
 	if dirlist[0] != "":
+		#print dirlist[0]
 		directory = file_list[dirlist[0]] # dir_list[0] = first directory
 	else:
 		directory = file_list
@@ -281,10 +265,13 @@ def mkdir(dirname): # Angie
 		if dirname[0] == '/': # dirname is an absolute path
 			fullpath = dirname[:last_slash] # gets the full path of the directory to create dirname in
 			traversedir(fullpath)[name] = {}
-		elif dirname[0] == ".." # create dirname in prev dir **NEEDS TO BE TESTED**
+		elif dirname[:dirname.find('/')] == "..": # create dirname in prev dir **NEEDS TO BE TESTED**
 			prevdirpath = cwd[:cwd.rfind('/')]
-			fullpath = prevdirpath + dirname[dirname.find('/'):last_slash]
-			traversedir(prevdirpath)[name] = {}
+			if prevdirpath == '': #prev dir is root
+				file_list[name] = {}
+			else:
+				fullpath = prevdirpath + dirname[dirname.find('/'):last_slash]
+				traversedir(prevdirpath)[name] = {}
 		elif dirname[0] == '.': # create dirname in cwd
 			curr_file_list[name] = {}
 
@@ -390,31 +377,42 @@ def chdir(dirname):# Haley
 	global cwd
 	global file_list
 	# "." doesn't change the cwd
-	last_slash = cwd.rfind("/") # finds the last occurrence of the input substring in the string
-	if dirname == "..":
-		cwd = cwd[0:last_slash]
-		last_slash = cwd.rfind("/")
-		prev_dir_name = cwd[last_slash:len(cwd)]
-		if prev_dir_name is not '':
-			curr_file_list = traversedir(cwd)
-		else: # the previous directory was the home dir
-			cwd = '/'
-			curr_file_list = file_list
-		print cwd # Angie: does os.chdir("..") print out the cwd?
-	elif dirname in curr_file_list or dirname[:dirname.find('/')] in curr_file_list: # dirname is just the name or a relative path
-		prev_dir_name = cwd[last_slash+1:len(cwd)]
-		curr_file_list = traversedir(cwd+'/'+dirname)
 
-		if cwd != "/":
-			cwd = cwd + "/" + dirname
-		else:
-			cwd = cwd + dirname
-	elif dirname[0] == '/': # dirname is absoluate path
+	if dirname.count('/') > 0: # dirname is some sort of path
 		curr_file_list = traversedir(dirname)
-		cwd = dirname
-	elif dirname != '.':
-		raise Exception("Error:" + dirname + ":No such directory.")
+		print dirname[0]
+		if dirname[0] == '/': # root
+			cwd = dirname
+		elif dirname[0] == '.': # ./a
+			dirname = dirname[dirname.find('/'):] # gets rid of '.', or '..'
+			cwd = cwd + dirname
+		elif dirname[1] == '.': #../a
+			dirname = dirname[dirname.find('/'):]
+			cwd = cwd[:cwd.rfind('/')] + dirname
+		else: # a/b
+			if cwd == '/':
+				cwd = cwd + dirname
+			else:
+				cwd = cwd + '/' + dirname
 
+	else: # dirname is just a name or .. or .
+		if dirname == "..":
+			if cwd[:cwd.rfind('/')] == '': # prev dir is root
+				cwd = '/'
+				curr_file_list = file_list
+			else:
+				cwd = cwd[:cwd.rfind('/')]
+				curr_file_list = traversedir(cwd)
+		elif dirname == ".":
+			pass # do nothing
+		elif dirname in curr_file_list:
+			curr_file_list = curr_file_list[dirname]
+			if cwd == '/':
+				cwd = cwd + dirname
+			else:
+				cwd = cwd + '/' + dirname
+		else:
+			raise Exception("Error:" + dirname + ":No such directory.")
 
 def init(fsname):
 
