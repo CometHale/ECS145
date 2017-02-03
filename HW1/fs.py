@@ -35,7 +35,11 @@ def create(file_name,nbytes):
 		elif dirlist[0] == "..": # Case 2: ../a/b/c
 			del dirlist[0]
 			prevdir = cwd.split('/') 
-			prevdirpath = '/'.join(prevdir[:-1]) # construct full path of previous directory
+			if prevdir[:-1] == ['~']: # previous dir is root
+				prevdirpath = "~/"
+			else:
+				prevdirpath = '/'.join(prevdir[:-1]) # construct full path of previous directory
+				
 			if len(dirlist) > 0: # if file name is not just ../a
 				filepath = prevdirpath + '/'.join(dirlist)
 				filelist = traversedir(filepath)
@@ -43,6 +47,7 @@ def create(file_name,nbytes):
 				filelist = traversedir(prevdirpath) # create file in previous dir
 
 		elif dirlist[0] == "": # Case 3: file_name is an absolute path: /a/b/c
+			del dirlist[0]
 			filepath = '/' + '/'.join(dirlist)
 			filelist = traversedir(filepath)
 
@@ -224,7 +229,10 @@ def traversedir(path):
 	dirlist = path.split('/') #/a/b/c -> ["", a, b, c]
 	del dirlist[0] # deletes "" from the list 
 	dir_count = len(dirlist)
-	directory = file_list[dirlist[0]] # dir_list[0] = first directory
+	if dirlist[0] != "":
+		directory = file_list[dirlist[0]] # dir_list[0] = first directory
+	else:
+		directory = file_list
 	for i in range(dir_count):
 		if i == dir_count - 1:
 			break
