@@ -263,16 +263,17 @@ def traversedir(path):
 	return directory
 
 def mkdir(dirname): # Angie
-	if dirname.count('/') == 0: # if dirname is a relative path
-		if cwd == "/":
-			file_list[dirname] = {}
-		else: # find the right directory in file_list to add dirname to
-			traversedir(cwd)[dirname] = {}
-	else: # if dirname is an absolute path
+	if dirname.count('/') == 0: # if dirname is not a path, just the name
+		curr_file_list[dirname] = {}
+	else: # if dirname is a path
 		last_slash = dirname.rfind('/')
 		name = dirname[last_slash+1:len(dirname)]  # gets the name of the directory to create
-		fullpath = dirname[:last_slash] # gets the full path of the directory to create dirname in
-		traversedir(fullpath)[name] = {}
+
+		if dirname[0] == '/': # dirname is an absolute path
+			fullpath = dirname[:last_slash] # gets the full path of the directory to create dirname in
+			traversedir(fullpath)[name] = {}
+		elif dirname[0] == '.': # create dirname in cwd
+			curr_file_list[name] = {}
 
 def isdir(dirname): # Sally
 	# make sure to include '.', '..'
@@ -376,8 +377,8 @@ def chdir(dirname):# Haley
 	global cwd
 	global file_list
 	# "." doesn't change the cwd
+	last_slash = cwd.rfind("/") # finds the last occurrence of the input substring in the string
 	if dirname == "..":
-		last_slash = cwd.rfind("/") # finds the last occurrence of the input substring in the string
 		cwd = cwd[0:last_slash]
 		last_slash = cwd.rfind("/")
 		prev_dir_name = cwd[last_slash:len(cwd)]
@@ -387,15 +388,17 @@ def chdir(dirname):# Haley
 			cwd = '/'
 			curr_file_list = file_list
 		print cwd # Angie: does os.chdir("..") print out the cwd?
-	elif dirname in curr_file_list:
-		last_slash = cwd.rfind("/")
+	elif dirname in curr_file_list or dirname[:dirname.find('/')] in curr_file_list: # dirname is just the name or a relative path
 		prev_dir_name = cwd[last_slash+1:len(cwd)]
-		curr_file_list = traversedir(cwd)[dirname]
+		curr_file_list = traversedir(cwd+'/'+dirname)
 
 		if cwd != "/":
 			cwd = cwd + "/" + dirname
 		else:
 			cwd = cwd + dirname
+	elif dirname[0] == '/': # dirname is absoluate path
+		curr_file_list = traversedir(dirname)
+		cwd = dirname
 	elif dirname != '.':
 		raise Exception("Error:" + dirname + ":No such directory.")
 
