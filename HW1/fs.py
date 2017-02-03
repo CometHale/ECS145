@@ -126,19 +126,35 @@ def seek(fd, pos): # Sally
 
 	file_fd_dict['pos'] = pos;  
 
+def posInFAT(file_name):
+	#helper function: returns a list of all indices in FAT where file_name lies (files could be chunked and not contiguous). Indices of this list would be pos)
+	#Example: [1, 2, 3, 5, 6] if pos = 2, then fat[3] would be where the byte is
+	fat_list = []
+	
+	for i in range(0, len(fat)):
+		if fat[i] == file_name:
+			fat_list.append(i)
+			
+	return fat_list
+	
 def read(fd, nbytes): # Sally
 	file_fd_dict = fd_list[fd] 
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	fat_start = fat.index(file_fd_dict['file_name'])
-	system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
+	list = posInFat(file_fd_dict['file_name'])
+	position = file_fd_dict['pos'] # Seek to the current filepointer position
 
 	#error-check: if read extends beyond the current LENGTH of the file
 	if nbytes > file_fd_dict['length']:
 		raise Exception("Error: Read goes over size of file")
-
-	file_fd_dict['pos'] += nbytes
-
-	return system.read(nbytes)
+	
+	x = "" #string of read characters
+	for i in range(0, nbytes):
+		system.seek(list[i + position])
+		x = x + system.read(1) #read one byte at time
+	
+	file_fd_dict['pos'] += nbytes 
+	
+	return x
   
 def write(fd, writebuf):	
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
@@ -148,17 +164,23 @@ def write(fd, writebuf):
 
 	fname = file_fd_dict['file_name']
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
+	list = posInFat(file_fd_dict['file_name'])
+	position = file_fd_dict['pos'] # Seek to the current filepointer position
+	
 	fat_start = fat.index(file_fd_dict['file_name'])
 	system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
 
 	#error-check (if writebuf is bigger than file size)
-	if len(writebuf) > nbytes:
+	if len(writebuf) > nbytes or len(writebuf) > (nbytes - length):
 		raise Excpetion("Error: Not enough bytes to write")
 
 	#after the start index of the file in fat
-	system.write(writebuf)
+	for i in range(0, len(writebuf)):
+		system.seek(list[i + position]) 
+		system.write(writebuf[i])
+	
 	file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
-	file_fd_dict['length'] += len(writebuf) # length is the # of bytes
+	file_fd_dict['length'] += len(writebuf) # length is the # of bytes act written to
 	file_lengths[fname] += len(writebuf) # update length in file_lengths too
 
 def readlines(fd): # Sally
@@ -173,11 +195,12 @@ def readlines(fd): # Sally
 def delFileInDir(file_name, list): #helper function 
 	if file_name in list:
 		del list[file_name]
-	else: 
-		for file in list:
-			if isinstance(file, dict): #directory
-				delFileInDir(file_name, file)
+		return
 	
+	for file in list:
+		if isinstance(file, dict): #directory
+			delFileInDir(file_name, file)
+
 def delfile(file_name): #Haley
 	
 	file_info = None
