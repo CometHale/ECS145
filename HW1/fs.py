@@ -19,7 +19,10 @@ def create(file_name,nbytes):
 	if file_name.count('/') != 0: 
 		name = file_name[file_name.rfind('/')+1:] # gets the actual file name from the path
 		path = file_name[:file_name.rfind('/')]
-		filelist = traversedir(path)
+		if path == '':
+			filelist = file_list
+		else:
+			filelist = traversedir(path)
 
 	# file_name is literally just the file name
 	else:
@@ -256,24 +259,13 @@ def traversedir(path):
 	return directory
 
 def mkdir(dirname): # Angie
+
 	if dirname.count('/') == 0: # if dirname is not a path, just the name
 		curr_file_list[dirname] = {}
-	else: # if dirname is a path
+	else: # if dirname is a path like ../a/b, ./a/b, /a/b, or a/b
 		last_slash = dirname.rfind('/')
-		name = dirname[last_slash+1:len(dirname)]  # gets the name of the directory to create
-
-		if dirname[0] == '/': # dirname is an absolute path
-			fullpath = dirname[:last_slash] # gets the full path of the directory to create dirname in
-			traversedir(fullpath)[name] = {}
-		elif dirname[:dirname.find('/')] == "..": # create dirname in prev dir **NEEDS TO BE TESTED**
-			prevdirpath = cwd[:cwd.rfind('/')]
-			if prevdirpath == '': #prev dir is root
-				file_list[name] = {}
-			else:
-				fullpath = prevdirpath + dirname[dirname.find('/'):last_slash]
-				traversedir(prevdirpath)[name] = {}
-		elif dirname[0] == '.': # create dirname in cwd
-			curr_file_list[name] = {}
+		name = dirname[last_slash+1:]  # gets the name of the directory to create
+		traversedir(dirname[:last_slash])[name] = {}
 
 def isdir(dirname): # Sally
 	# make sure to include '.', '..'
