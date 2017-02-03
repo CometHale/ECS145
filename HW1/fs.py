@@ -1,7 +1,6 @@
 from file_class import File
 import pickle
 import os
-import glob
 import __builtin__
 
 # Change error checking, use raise and Exception()
@@ -337,7 +336,7 @@ def suspend(): # Angie
 
 	pickleFile.close()
 
-def resume(): # Angie
+def resume(pFile): # Angie
 
 	global system
 	global system_name
@@ -351,7 +350,7 @@ def resume(): # Angie
 	global fd_list # list of dictionaries: file_name, pos, length, mode
 
 
-	pickleFile = __builtin__.open(glob.glob("*.fssave")[0], 'rb')
+	pickleFile = __builtin__.open(pFile, 'rb')
 	
 	system_name = pickle.load(pickleFile)
 	system_bytes_left = pickle.load(pickleFile)
