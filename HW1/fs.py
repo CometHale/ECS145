@@ -26,7 +26,7 @@ def create(file_name,nbytes):
 				filepath = cwd + '/'.join(dirlist) # cwd + a/b/c
 				filelist = traversedir(filepath)
 			else: # file name is just ./a
-				if cwd != "~/": 
+				if cwd != "/": 
 					filelist = traversedir(cwd)
 				else:
 					filelist = file_list
@@ -34,8 +34,8 @@ def create(file_name,nbytes):
 		elif dirlist[0] == "..": # Case 2: ../a/b/c
 			del dirlist[0]
 			prevdir = cwd.split('/') 
-			if prevdir[:-1] == ['~']: # previous dir is root
-				prevdirpath = "~/"
+			if prevdir[:-1] == ['']: # previous dir is root
+				prevdirpath = "/"
 			else:
 				prevdirpath = '/'.join(prevdir[:-1]) # construct full path of previous directory
 				
@@ -57,7 +57,7 @@ def create(file_name,nbytes):
 	# file_name is literally just the file name
 	else:
 		name = file_name
-		if cwd != "~/": 
+		if cwd != "/": 
 			filelist = traversedir(cwd) # go to the current working directory's dictionary
 		else:
 			filelist = file_list
@@ -263,9 +263,8 @@ def traversedir(path):
 	return directory
 
 def mkdir(dirname): # Angie
-	#Haley: changed this so we can mkdirs in other dirs
 	if dirname.count('/') == 0: # if dirname is a relative path
-		if cwd == "~/":
+		if cwd == "/":
 			file_list[dirname] = {}
 		else: # find the right directory in file_list to add dirname to
 			traversedir(cwd)[dirname] = {}
@@ -357,7 +356,7 @@ def resume(pFile): # Angie
 	file_list = pickle.load(pickleFile)
 	curr_file_list = file_list
 	print curr_file_list
-	cwd = '~/'
+	cwd = '/'
 	file_lengths = pickle.load(pickleFile)
 	fat = pickle.load(pickleFile)
 	fd_list = pickle.load(pickleFile)
@@ -391,7 +390,7 @@ def chdir(dirname):# Haley
 		last_slash = cwd.rfind("/")
 		prev_dir_name = cwd[last_slash+1:len(cwd)]
 
-		if cwd != "~/":
+		if cwd != "/":
 			cwd = cwd + "/" + dirname
 		else:
 			cwd = cwd + dirname
@@ -423,7 +422,7 @@ def init(fsname):
 	file_list = {}
 	file_lengths = {}
 	curr_file_list = file_list
-	cwd = '~/'
+	cwd = '/'
 	fat = [ -1 for i in range(system_size)]
 	fd_list = [ -1 for i in range(10)]
 	
