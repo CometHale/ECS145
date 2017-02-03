@@ -378,28 +378,25 @@ def chdir(dirname):# Haley
 	# "." doesn't change the cwd
 	if dirname == "..":
 		last_slash = cwd.rfind("/") # finds the last occurrence of the input substring in the string
-		cwd = cwd[0:last_slash+1]
+		cwd = cwd[0:last_slash]
 		last_slash = cwd.rfind("/")
-		prev_dir_name = cwd[last_slash:len(cwd) - 1]
+		prev_dir_name = cwd[last_slash:len(cwd)]
 		if prev_dir_name is not '':
-			curr_file_list = file_list[prev_dir_name]
+			curr_file_list = traversedir(cwd)
 		else: # the previous directory was the home dir
+			cwd = '/'
 			curr_file_list = file_list
-		print cwd
+		print cwd # Angie: does os.chdir("..") print out the cwd?
 	elif dirname in curr_file_list:
 		last_slash = cwd.rfind("/")
 		prev_dir_name = cwd[last_slash+1:len(cwd)]
+		curr_file_list = traversedir(cwd)[dirname]
 
 		if cwd != "/":
 			cwd = cwd + "/" + dirname
 		else:
 			cwd = cwd + dirname
-
-		try:
-			curr_file_list = file_list[dirname]
-		except:
-			curr_file_list = file_list[prev_dir_name][dirname]
-	else:
+	elif dirname != '.':
 		raise Exception("Error:" + dirname + ":No such directory.")
 
 
