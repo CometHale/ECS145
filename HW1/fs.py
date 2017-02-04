@@ -207,7 +207,7 @@ def delfile(file_name): #Haley
 			fat[i] = -1
 
 	# make sure to change curr_file_list
-	deleteFileInDir(file_name, file_list)	#deletes with nested dictionaries too
+	delFileInDir(file_name, file_list)	#deletes with nested dictionaries too
 		
 def deldir(dirname): # Haley
 	# make sure to change curr_file_list
