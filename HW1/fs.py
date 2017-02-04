@@ -110,7 +110,7 @@ def posInFAT(file_name):
 def read(fd, nbytes): # Sally
 	file_fd_dict = fd_list[fd] 
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	list = posInFATAT(file_fd_dict['file_name'])
+	list = posInFAT(file_fd_dict['file_name'])
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 
 	#error-check: if read extends beyond the current LENGTH of the file
@@ -141,7 +141,7 @@ def write(fd, writebuf):
 	system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
 
 	#error-check (if writebuf is bigger than file size)
-	if len(writebuf) > nbytes or len(writebuf) > (nbytes - length):
+	if len(writebuf) > nbytes or len(writebuf) > (nbytes - file_lengths[fname]):
 		raise Excpetion("Error: Not enough bytes to write")
 
 	#after the start index of the file in fat
@@ -159,13 +159,15 @@ def readlines(fd): # Sally
 	string = ""
 	
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	l = posInFat(file_fd_dict['file_name'])
+	l = posInFAT(file_fd_dict['file_name'])
 
 	for i in range(0, len(l)):
-		system.seek(fat[l[i]])
+		system.seek(l[i])
 		c = system.read(1)
 		string = string + c
-		if c == '\0xa':#new line character
+		if i == len(l) - 1: # reached end of contents
+			lines.append(string)
+		elif c == '\0xa':#new line character
 			lines.append(string)
 			string = "" #reset the string
 	
@@ -430,7 +432,7 @@ def init(fsname):
 	fd_list = [ -1 for i in range(10)]
 	
 	try:
-		system = __builtin__.open(fsname,'w')
+		system = __builtin__.open(fsname,'w+')
 	except:
 		raise Exception("Error opening the native file.")
 	
