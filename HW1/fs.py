@@ -132,7 +132,7 @@ def posInFAT(file_name):
 	
 def read(fd, nbytes): # Sally
 	file_fd_dict = fd_list[fd] 
-	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
+	size = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
 	list = posInFAT(file_fd_dict['file_name'])
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 
@@ -173,10 +173,11 @@ def write(fd, writebuf):
 	#after the start index of the file in fat
 	for i in range(0, len(writebuf)):
 		system.seek(list[i + position]) 
+		if system.read(1) == "\x00": #empty byte
+			file_fd_dict['length'] += 1 #only increment length when that byte was initially empty
 		system.write(writebuf[i])
 	
 	file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
-	file_fd_dict['length'] += len(writebuf) # length is the # of bytes act written to
 	file_lengths[fname] += len(writebuf) # update length in file_lengths too
 
 def readlines(fd): # Sally
@@ -186,14 +187,15 @@ def readlines(fd): # Sally
 	lines = []
 	string = ""
 	
+	length = file_fd_dict['length']
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
 	l = posInFAT(file_fd_dict['file_name'])
 
-	for i in range(0, len(l)):
+	for i in range(0, length): 
 		system.seek(l[i])
 		c = system.read(1)
 		string = string + c
-		if i == len(l) - 1: # reached end of contents
+		if i == length - 1: # reached end of contents
 			lines.append(string)
 		elif c == '\0xa':#new line character
 			lines.append(string)
