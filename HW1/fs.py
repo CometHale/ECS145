@@ -159,15 +159,15 @@ def write(fd, writebuf):
 		raise Exception("Error: Not in writing mode")
 
 	fname = file_fd_dict['file_name']
-	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	list = posInFAT(file_fd_dict['file_name'])
+	nbytes = file_list[fname] # file_list[file_name] = nbytes
+	list = posInFAT(fname)
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 	
-	fat_start = fat.index(file_fd_dict['file_name'])
-	system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
+	fat_start = fat.index(fname)
+	system.seek(fat_start + position) # Seek to the current filepointer position
 
 	#error-check (if writebuf is bigger than file size)
-	if len(writebuf) > nbytes or len(writebuf) > (nbytes - file_lengths[fname]):
+	if len(writebuf) > nbytes or len(writebuf) > (nbytes - position):
 		raise Exception("Error: Not enough bytes to write")
 
 	#after the start index of the file in fat
