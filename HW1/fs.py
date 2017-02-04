@@ -3,13 +3,18 @@ import pickle
 import os
 import __builtin__
 
-# Change error checking, use raise and Exception()
+# Check different cases like:
+# writing multiple lines and reading them
+# overwriting a file
+# test deleting files with paths like ./a, ../a, /a, ./a/b, ../a/b, /a/b, a/b 
+# test deleting files from other directories without being side them
+
+# Angie: I checked mkdir, create, chdir, open, close, suspend and resume. I checked Readlines for files that only have 1 line.
 
 def bytes_remaining(nbytes):
 	return system_bytes_left - nbytes
 
 def create(file_name,nbytes): 
-	#also deal with creating files in directories
 	global system_bytes_left
 	bytes_left = bytes_remaining(nbytes)
 
@@ -57,7 +62,24 @@ def open(file_name,mode):
 	if system.closed:
 		raise Exception("Error: System is suspended; cannot open file.")
 	#if file doesn't exist
-	if file_name in file_list.keys():
+
+	if file_name.count('/') > 0: # is a path
+		name = file_name[file_name.rfind('/')+1:]
+		if file_name[:file_name.rfind('/')] == "..": # case: ../a where a is the file name
+			if cwd[:cwd.rfind('/')] == '': # prev dir is the root
+				currfilelist = file_list
+			else:
+				currfilelist = traversedir(cwd[:cwd.rfind('/')])
+		elif file_name[:file_name.rfind('/')] == '.': # case: ./a where a is the file name
+			currfilelist = curr_file_list
+		elif file_name[:file_name.rfind('/')] == '': # case: /a where a is file name
+			currfilelist = file_list
+		else: # case: ../a/b or ./a/b or /a/b where b is the file name
+			currfilelist = traversedir(file_name[:file_name.rfind("/")])
+	else: 
+		name = file_name
+		currfilelist = curr_file_list
+	if name in currfilelist.keys():
 		exist = True
 	
 	if not exist:
@@ -65,10 +87,10 @@ def open(file_name,mode):
 
 	try:
 		fd = fd_list.index(-1)
-		fd_list[fd] = {'file_name':file_name,'pos':0,'length':file_lengths[file_name],'mode':mode}
+		fd_list[fd] = {'file_name':name,'pos':0,'length':file_lengths[name],'mode':mode}
 		return fd
 	except:
-		fd_list.append({'file_name':file_name,'pos':0,'length':0,'mode':mode})
+		fd_list.append({'file_name':name,'pos':0,'length':0,'mode':mode})
 		return len(fd_list) - 1 # last index of fd_list
 
 
@@ -127,6 +149,9 @@ def read(fd, nbytes): # Sally
 	return x
   
 def write(fd, writebuf):	
+	# Angie: Currently write does not overwrite contents in files. Like if f1 has size 5 with "hello" already in it, opening and writing in it with "hi"
+	# would give exception not enough bytes to write.
+
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 
 	if file_fd_dict['mode'] is not 'w':
@@ -142,7 +167,7 @@ def write(fd, writebuf):
 
 	#error-check (if writebuf is bigger than file size)
 	if len(writebuf) > nbytes or len(writebuf) > (nbytes - file_lengths[fname]):
-		raise Excpetion("Error: Not enough bytes to write")
+		raise Exception("Error: Not enough bytes to write")
 
 	#after the start index of the file in fat
 	for i in range(0, len(writebuf)):
@@ -154,6 +179,8 @@ def write(fd, writebuf):
 	file_lengths[fname] += len(writebuf) # update length in file_lengths too
 
 def readlines(fd): # Sally
+	#haven't tested reading multiple lines yet. Only read single lines so far and it works.
+
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 	lines = []
 	string = ""
@@ -261,13 +288,23 @@ def traversedir(path):
 	return directory
 
 def mkdir(dirname): # Angie
-
 	if dirname.count('/') == 0: # if dirname is not a path, just the name
 		curr_file_list[dirname] = {}
-	else: # if dirname is a path like ../a/b, ./a/b, /a/b, or a/b
+	else: # if dirname is a path
 		last_slash = dirname.rfind('/')
 		name = dirname[last_slash+1:]  # gets the name of the directory to create
-		traversedir(dirname[:last_slash])[name] = {}
+
+		# takes care of cases where theres only 1 slash in dirname
+		if dirname[:last_slash] == '': # case: /a where a is the directory to create
+			file_list[name] = {}
+		elif dirname[:last_slash] =='.': # case: ./a 
+			curr_file_list[name] = {}
+		elif dirname[:last_slash] == "..": # case: ../a
+			traversedir(cwd[:cwd.rfind('/')])[name] = {}
+			
+		# cases where the path has more than one slash
+		else: 
+			traversedir(dirname[:last_slash])[name] = {}
 
 def isdir(dirname): # Sally
 	# make sure to include '.', '..'
@@ -374,15 +411,14 @@ def chdir(dirname):# Haley
 
 	if dirname.count('/') > 0: # dirname is some sort of path
 		curr_file_list = traversedir(dirname)
-		print dirname[0]
 		if dirname[0] == '/': # root
 			cwd = dirname
-		elif dirname[0] == '.': # ./a
-			dirname = dirname[dirname.find('/'):] # gets rid of '.', or '..'
-			cwd = cwd + dirname
 		elif dirname[1] == '.': #../a
 			dirname = dirname[dirname.find('/'):]
 			cwd = cwd[:cwd.rfind('/')] + dirname
+		elif dirname[0] == '.': # ./a
+			dirname = dirname[dirname.find('/'):] # gets rid of '.', or '..'
+			cwd = cwd + dirname
 		else: # a/b
 			if cwd == '/':
 				cwd = cwd + dirname
