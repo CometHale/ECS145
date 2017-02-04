@@ -8,6 +8,7 @@ import __builtin__
 # overwriting a file
 # test deleting files with paths like ./a, ../a, /a, ./a/b, ../a/b, /a/b, a/b 
 # test deleting files from other directories without being side them
+# test if reading and writing incontinguous files work (aka. delete files that are in between other files to write incontinguous files)
 
 # Angie: I checked mkdir, create, chdir, open, close, suspend and resume. I checked Readlines for files that only have 1 line.
 
