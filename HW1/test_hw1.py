@@ -19,33 +19,38 @@ third_dir = "d3"
 result = fs.init(small_test)
 
 if result != 0:
-	print "Failed to init the system.\n"
+	print "Error: Failed to init the system.\n"
 
 #Test create file
-print "Creating first_file (2 byte file)...\n"
+print "Error: Creating first_file (2 byte file)...\n"
 fs.create(first_file,2)
 
 if first_file not in fs.file_list:
-	print "Failed to create first_file.\n"
+	print "Error: Failed to create first_file.\n"
 
 #Test writing
-print "Opening 2 byte file for writing...\n"
+print "Error: Opening 2 byte file for writing...\n"
 fd_f1 = fs.open(first_file,"w")
 
 if fd_f1 < 0:
-	print "Failed to open first_file."
+	print "Error: Failed to open first_file."
 
 fs.write(fd_f1,"aa")
 
 test_length = fs.length(fd_f1)
 
 if test_length < 2:
-	print "Failed to write to first_file.\n"
+	print "Error: Failed to write to first_file.\n"
 
 f1_pos = fs.pos(fd_f1)
+
+if f1_pos != 2:
+	print "Error: filepointer in incorrect place.\n"
 fs.close(fd_f1)
 
-
+if fs.fd_list[fd_f1] != -1:
+	print "Error: File didn't close properly.\n"
+	
 ######### TESTS THAT SHOULD FAIL #########
 
 
