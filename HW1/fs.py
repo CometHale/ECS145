@@ -110,7 +110,7 @@ def posInFAT(file_name):
 def read(fd, nbytes): # Sally
 	file_fd_dict = fd_list[fd] 
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	list = posInFat(file_fd_dict['file_name'])
+	list = posInFATAT(file_fd_dict['file_name'])
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 
 	#error-check: if read extends beyond the current LENGTH of the file
@@ -134,7 +134,7 @@ def write(fd, writebuf):
 
 	fname = file_fd_dict['file_name']
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	list = posInFat(file_fd_dict['file_name'])
+	list = posInFAT(file_fd_dict['file_name'])
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 	
 	fat_start = fat.index(file_fd_dict['file_name'])
