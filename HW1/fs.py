@@ -57,13 +57,7 @@ def open(file_name,mode):
 	if system.closed:
 		raise Exception("Error: System is suspended; cannot open file.")
 	#if file doesn't exist
-	if file_name.count('/') > 0: # file_name is a path
-		name = file_name[file_name.rfind('/')+1:] # gets the actual file name
-		currfilelist = traversedir(file_name[:file_name.rfind('/')])
-	else: # file_name is the actual name
-		name = file_name
-		currfilelist = curr_file_list
-	if name in currfilelist.keys():
+	if file_name in file_list.keys():
 		exist = True
 	
 	if not exist:
@@ -71,10 +65,10 @@ def open(file_name,mode):
 
 	try:
 		fd = fd_list.index(-1)
-		fd_list[fd] = {'file_name':name,'pos':0,'length':file_lengths[name],'mode':mode}
+		fd_list[fd] = {'file_name':file_name,'pos':0,'length':file_lengths[file_name],'mode':mode}
 		return fd
 	except:
-		fd_list.append({'file_name':name,'pos':0,'length':0,'mode':mode})
+		fd_list.append({'file_name':file_name,'pos':0,'length':0,'mode':mode})
 		return len(fd_list) - 1 # last index of fd_list
 
 
@@ -116,7 +110,7 @@ def posInFAT(file_name):
 def read(fd, nbytes): # Sally
 	file_fd_dict = fd_list[fd] 
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	list = posInFAT(file_fd_dict['file_name'])
+	list = posInFat(file_fd_dict['file_name'])
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 
 	#error-check: if read extends beyond the current LENGTH of the file
@@ -140,14 +134,14 @@ def write(fd, writebuf):
 
 	fname = file_fd_dict['file_name']
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	list = posInFAT(file_fd_dict['file_name'])
+	list = posInFat(file_fd_dict['file_name'])
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 	
 	fat_start = fat.index(file_fd_dict['file_name'])
 	system.seek(fat_start + file_fd_dict['pos']) # Seek to the current filepointer position
 
 	#error-check (if writebuf is bigger than file size)
-	if len(writebuf) > nbytes or len(writebuf) > (nbytes - file_lengths[fname]):
+	if len(writebuf) > nbytes or len(writebuf) > (nbytes - length):
 		raise Excpetion("Error: Not enough bytes to write")
 
 	#after the start index of the file in fat
@@ -162,25 +156,20 @@ def write(fd, writebuf):
 def readlines(fd): # Sally
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 	list = []
-	allLines = []
 	string = ""
 	
 	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
-	list = posInFAT(file_fd_dict['file_name'])
+	list = posInFat(file_fd_dict['file_name'])
 
 	for i in range(0, len(list)):
-		system.seek(list[i])
+		system.seek(fat[list[i]])
 		c = system.read(1)
 		string = string + c
 		if c == '\0xa':#new line character
-			#list.append(string)
-			allLines.append(string)
+			list.append(string)
 			string = "" #reset the string
-		if i == len(list) - 1: # at the end of content
-			allLines.append(string)
 	
-	return allLines
-	#return system.readlines() #might \manually read lines out later
+	return system.readlines() #might \manually read lines out later
 
 def delFileInDir(file_name, list): #helper function 
 	if file_name in list:
