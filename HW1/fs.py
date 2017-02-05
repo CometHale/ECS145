@@ -173,8 +173,9 @@ def write(fd, writebuf):
 	#after the start index of the file in fat
 	for i in range(0, len(writebuf)):
 		system.seek(list[i + position]) 
-		if system.read(1) == "\x00": #empty byte
+		if system.read(1) == '\x00': #empty byte
 			file_fd_dict['length'] += 1 #only increment length when that byte was initially empty
+		system.seek(list[i + position]) 
 		system.write(writebuf[i])
 	
 	file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
@@ -471,7 +472,7 @@ def init(fsname):
 	fd_list = [ -1 for i in range(10)]
 	
 	try:
-		system = __builtin__.open(fsname,'w+')
+		system = __builtin__.open(fsname,'r+')
 	except:
 		raise Exception("Error opening the native file.")
 	
