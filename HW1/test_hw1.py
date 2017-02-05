@@ -252,7 +252,7 @@ print fs.file_list
 ######### TESTS THAT SHOULD FAIL #########
 
 
-#creating a file far down a nest of dirs
+#creating a file far down a nest of dirs <-- Angie: I think it works?
 # writing multiple lines and reading them
 # overwriting a file
 # test deleting files with paths like ./a, ../a, /a, ./a/b, ../a/b, /a/b, a/b 
