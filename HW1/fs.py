@@ -217,7 +217,7 @@ def readlines(fd): # Sally
 		if i == length - 1: # reached end of contents
 			lines.append(string)
 		elif c == '\n': #new line character
-			lines.append(string[:-1])
+			lines.append(string)
 			string = "" #reset the string
 	
 	return lines
