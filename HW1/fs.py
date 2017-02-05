@@ -147,6 +147,9 @@ def read(fd, nbytes): # Sally
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 
 	#error-check: if read extends beyond the current LENGTH of the file
+	if file_fd_dict['mode'] is not 'r':
+		raise Exception("Error: Not in reading mode")
+	
 	if nbytes > file_fd_dict['length']:
 		raise Exception("Error: Read goes over size of file")
 	
@@ -195,10 +198,13 @@ def write(fd, writebuf):
 
 def readlines(fd): # Sally
 	#haven't tested reading multiple lines yet. Only read single lines so far and it works.
-
+	
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 	lines = []
 	string = ""
+	
+	if file_fd_dict['mode'] is not 'r':
+		raise Exception("Error: Not in reading mode")
 	
 	length = file_fd_dict['length']
 	l = posInFAT(file_fd_dict['file_name'])
@@ -209,7 +215,7 @@ def readlines(fd): # Sally
 		string = string + c
 		if i == length - 1: # reached end of contents
 			lines.append(string)
-		elif c == '\0xa':#new line character
+		elif c == '\n': #new line character
 			lines.append(string)
 			string = "" #reset the string
 	
