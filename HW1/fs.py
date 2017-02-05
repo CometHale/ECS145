@@ -236,14 +236,20 @@ def delfile(file_name): #Haley
 	
 	file_info = None
 
-	if file_name in curr_file_list.keys():
-		file_size = curr_file_list[file_name]
+	if file_name.count('/') > 0: # file_name is a path
+		name = file_name[file_name.rfind('/')+1:]
+		filelist = traversedir(file_name[:file_name.rfind('/')])		
+	else: # file_name is just the name
+		name = file_name
+
+	if name in filelist.keys():
+		file_size = filelist[name]
 	else:
 		raise Exception("Error: File does not exist in this directory.")
 
 	for fd in fd_list:
 		if fd != -1: # Angie: I changed fd_list[fd] to fd since fd could be a dictionary
-			if fd['file_name'] == file_name:
+			if fd['file_name'] == name:
 				file_info = fd['file_name']
 				break
 
@@ -253,14 +259,14 @@ def delfile(file_name): #Haley
 	
 	#delete the file from native file
 	for i in range(0, len(fat)):
-		if fat[i] == file_name: #clean this index out
+		if fat[i] == name: #clean this index out
 			system.seek(i)
 			system.write('\x00')
 			fat[i] = -1
 
 	# make sure to change curr_file_list
 	system_bytes_left += file_size
-	delFileInDir(file_name, file_list) #works in nested dictionaries
+	delFileInDir(name, file_list) #works in nested dictionaries
 		
 def deldir(dirname): # Haley
 	# make sure to change curr_file_list
@@ -286,7 +292,11 @@ def traversedir(path):
 	# only pass PATHS
 
 	# paths are either ./a/b, ../a/b, /a/b, or a/b
-	firstpart = path[:path.find('/')]
+	if path == ".." or path == '.' or path == '':
+		firstpart = path
+	else:
+		firstpart = path[:path.find('/')]
+
 	if firstpart == "..": # ../a/b
 		path = path[path.find('/')+1:] # a/b
 		prevdirpath = cwd[:cwd.rfind('/') + 1] # /s/d/
