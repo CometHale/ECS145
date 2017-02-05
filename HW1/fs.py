@@ -311,7 +311,10 @@ def traversedir(path):
 	for i in range(dir_count):
 		if i == dir_count - 1:
 			break
-		directory = directory[dirlist[i+1]]
+		if dirlist[i+1] not in directory:
+			print "No such dir"
+		else:
+			directory = directory[dirlist[i+1]]
 	return directory
 
 def mkdir(dirname): # Angie
@@ -502,4 +505,9 @@ def init(fsname):
 	except:
 		raise Exception("Error opening the native file.")
 	
-	return 
+	return 0
+
+
+
+
+
