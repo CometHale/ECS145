@@ -276,16 +276,23 @@ def deldir(dirname): # Haley
 	# if not isdir(dirname):
 		# raise Exception("File is not a directory: use delfile instead.")
 	#check to see if currently in dir
-	last_slash = cwd.rfind("/")
-	full_path = cwd[: cwd.rfind('/')] + dirname
-	prev_dir_name = cwd[1:]
-	
-	if full_path == prev_dir_name:
-		raise Exception("Error: Currently in " + dirname + ": Cannot delete an active directory.")
-	if dirname not in curr_file_list:
-		raise Exception("Error: " + dirname + " : No such directory.")
 
-	curr_file_list.pop(dirname)
+	if dirname.count('/') > 0: #dirname is a path
+		name = dirname[dirname.rfind('/')+1:]
+		filelist = traversedir(dirname[:dirname.rfind('/')])
+	else: #dirname is just a name
+		name = dirname
+
+	'''last_slash = cwd.rfind("/")
+	full_path = cwd[: cwd.rfind('/')] + dirname
+	prev_dir_name = cwd[1:]'''
+	
+	if name == cwd[cwd.rfind('/')+1:]:
+		raise Exception("Error: Currently in " + name + ": Cannot delete an active directory.")
+	if name not in filelist:
+		raise Exception("Error: " + name + " : No such directory.")
+
+	filelist.pop(name)
 
 def traversedir(path):
 	# goes through file_list to return the directory specified in the last portion of the path
