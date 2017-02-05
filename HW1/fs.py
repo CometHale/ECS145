@@ -119,6 +119,17 @@ def seek(fd, pos): # Sally
 
 	file_fd_dict['pos'] = pos;  
 
+def findFile(f_list, file_name):
+	#helper function: finds and returns files in nested directories
+	
+	if file_name in f_list:
+		size = f_list[file_name]
+		return size #returns size
+		
+	for file_dict in f_list.values():
+		if isinstance(file_dict , dict): #directory
+			return findFile(file_dict, file_name)
+	
 def posInFAT(file_name):
 	#helper function: returns a list of all indices in FAT where file_name lies (files could be chunked and not contiguous). Indices of this list would be pos)
 	#Example: [1, 2, 3, 5, 6] if pos = 2, then fat[3] would be where the byte is
@@ -132,7 +143,6 @@ def posInFAT(file_name):
 	
 def read(fd, nbytes): # Sally
 	file_fd_dict = fd_list[fd] 
-	size = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
 	list = posInFAT(file_fd_dict['file_name'])
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 
@@ -150,6 +160,7 @@ def read(fd, nbytes): # Sally
 	return x
   
 def write(fd, writebuf):	
+	global file_list
 	# Angie: Currently write does not overwrite contents in files. Like if f1 has size 5 with "hello" already in it, opening and writing in it with "hi"
 	# would give exception not enough bytes to write.
 
@@ -159,15 +170,16 @@ def write(fd, writebuf):
 		raise Exception("Error: Not in writing mode")
 
 	fname = file_fd_dict['file_name']
-	nbytes = file_list[fname] # file_list[file_name] = nbytes
+	nbytes = findFile(file_list, fname) # file_list[file_name] = nbytes
 	list = posInFAT(fname)
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
+	wbytes = nbytes - position
 	
 	fat_start = fat.index(fname)
 	system.seek(fat_start + position) # Seek to the current filepointer position
 
 	#error-check (if writebuf is bigger than file size)
-	if len(writebuf) > nbytes or len(writebuf) > (nbytes - position):
+	if len(writebuf) > nbytes or len(writebuf) > wbytes:
 		raise Exception("Error: Not enough bytes to write")
 
 	#after the start index of the file in fat
@@ -189,7 +201,6 @@ def readlines(fd): # Sally
 	string = ""
 	
 	length = file_fd_dict['length']
-	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
 	l = posInFAT(file_fd_dict['file_name'])
 
 	for i in range(0, length): 
@@ -209,18 +220,19 @@ def delFileInDir(file_name, list): #helper function
 		del list[file_name]
 		return
 	
-	for file in list:
+	for file in list.values():
 		if isinstance(file, dict): #directory
 			delFileInDir(file_name, file)
 
 def delfile(file_name): #Haley
+	global system_bytes_left
 	
 	file_info = None
 
-	if file_name in file_list.keys():
-		file_size = file_list[file_name]
+	if file_name in curr_file_list.keys():
+		file_size = curr_file_list[file_name]
 	else:
-		raise Exception("Error: File does not exist.")
+		raise Exception("Error: File does not exist in this directory.")
 
 	for fd in fd_list:
 		if fd != -1: # Angie: I changed fd_list[fd] to fd since fd could be a dictionary
@@ -240,7 +252,8 @@ def delfile(file_name): #Haley
 			fat[i] = -1
 
 	# make sure to change curr_file_list
-	delFileInDir(file_name, file_list)	#deletes with nested dictionaries too
+	system_bytes_left += file_size
+	delFileInDir(file_name, file_list) #works in nested dictionaries
 		
 def deldir(dirname): # Haley
 	# make sure to change curr_file_list
@@ -248,14 +261,16 @@ def deldir(dirname): # Haley
 	global curr_file_list
 	#check to see if the dirname is a dir
 	# if not isdir(dirname):
-	# 	raise Exception("File is not a directory: use delfile instead.")
+		# raise Exception("File is not a directory: use delfile instead.")
 	#check to see if currently in dir
 	last_slash = cwd.rfind("/")
-	prev_dir_name = cwd[last_slash + 1:len(cwd)]
-	if prev_dir_name == cwd:
-		raise Exception("Error: Currently in " + dirname + ":Cannot delete an active directory.")
+	full_path = cwd[: cwd.rfind('/')] + dirname
+	prev_dir_name = cwd[1:]
+	
+	if full_path == prev_dir_name:
+		raise Exception("Error: Currently in " + dirname + ": Cannot delete an active directory.")
 	if dirname not in curr_file_list:
-		raise Exception("Error:" + dirname + ":No such directory.")
+		raise Exception("Error: " + dirname + " : No such directory.")
 
 	curr_file_list.pop(dirname)
 
@@ -276,11 +291,13 @@ def traversedir(path):
 		dirlist = path
 	else: # a/b
 		dirlist = cwd + '/' + path
-
+	
 	dirlist = dirlist.split('/') #/a/b/c -> ["", a, b, c]
 	del dirlist[0] # deletes "" from the list 
 	dir_count = len(dirlist)
-	if dirlist[0] != "":
+	if not dirlist: #empty list -> looking at root directory
+		directory = file_list
+	elif dirlist[0] != "":
 		#print dirlist[0]
 		directory = file_list[dirlist[0]] # dir_list[0] = first directory
 	else:
@@ -316,10 +333,13 @@ def isdir(dirname): # Sally
     return True #they're obviously directories lol
   else: #relative or absolute path
     if dirname.count('/') == 0: #look in current dir (relative path)
-      if isinstance(curr_file_list[dirname], (int, long)): #a file if True
-        return False
-      else:
-        return True
+			if dirname in curr_file_list:
+				if isinstance(curr_file_list[dirname], (int, long)): #a file if True
+					return False
+				else:
+					return True
+			else:
+				raise Exception("Directory does not exist")
     else: #must traverse thru multiple directories (using traverse(dir)
       #cut off the last part (ie. a/b/c we change to a/b)
       checkDir = dirname[dirname.rfind('/') : ] #finds last occurence of / (ie. checkDir is now /c)
@@ -338,7 +358,7 @@ def listdir(dirname): # Sally
     return curr_file_list
   elif dirname == "..": #find the previous directory
     #cwd is the absolute path
-    dirPath = cwd[: cwd.find('/')] #get rid of last / (ie. a/b/c -> a/b)
+    dirPath = cwd[: cwd.rfind('/')] #get rid of last / (ie. a/b/c -> a/b)
   else: #absolute or relative path
     if dirname[0] == '/': #absolute path
       dirPath = dirname
@@ -391,7 +411,7 @@ def resume(pFile): # Angie
 	system_bytes_left = pickle.load(pickleFile)
 	file_list = pickle.load(pickleFile)
 	curr_file_list = file_list
-	print curr_file_list
+	#print curr_file_list sally->a debug print?
 	cwd = '/'
 	file_lengths = pickle.load(pickleFile)
 	fat = pickle.load(pickleFile)
