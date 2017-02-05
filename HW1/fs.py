@@ -1,7 +1,8 @@
-from file_class import File
 import pickle
 import os
 import __builtin__
+
+# Group members: Wai Ying Li (998092926), Haley Sanders-Turner (), Sally Ly ()
 
 # Check different cases like:
 # writing multiple lines and reading them
@@ -451,7 +452,10 @@ def chdir(dirname):# Haley
 			cwd = cwd[:cwd.rfind('/')] + dirname
 		elif dirname[0] == '.': # ./a
 			dirname = dirname[dirname.find('/'):] # gets rid of '.', or '..'
-			cwd = cwd + dirname
+			if cwd == "/":
+				cwd = dirname
+			else:
+				cwd = cwd + dirname
 		else: # a/b
 			if cwd == '/':
 				cwd = cwd + dirname

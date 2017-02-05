@@ -114,10 +114,10 @@ fd_f1 = fs.open(first_file,"w")
 if fd_f1 < 0:
 	print "Error: Failed to open first_file."
 
-fs.write(fd_f1,"aaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa")
+fs.write(fd_f1,"aaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa")
 
 test_length = fs.length(fd_f1)
-correct_length = len("aaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa")
+correct_length = len("aaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa\naaaaaaaaa")
 if test_length != correct_length:
 	print "Error: Failed to write to first_file.\n"
 
@@ -166,11 +166,12 @@ print fs.file_list
 print "Suspending " + medium_test + " ...\n"
 fs.suspend()
 print "Resuming " + medium_test + " ...\n"
-fs.resume(small_test + ".fssave")
+fs.resume(medium_test + ".fssave")
 print fs.file_list
 
 fs.delfile(first_file)
 print "Creating /d1/d2/d3/d4/f3 ...\n"
+print fs.system_bytes_left
 fs.create("/d1/d2/d3/d4/" + third_file,30)
 print fs.file_list
 
