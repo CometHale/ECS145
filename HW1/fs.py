@@ -476,4 +476,4 @@ def init(fsname):
 	except:
 		raise Exception("Error opening the native file.")
 	
-	return 0
+	return 
