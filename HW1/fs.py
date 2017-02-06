@@ -106,9 +106,14 @@ def pos(fd): # Haley
 	return fd_list[fd]['pos']
 
 def seek(fd, pos): # Sally
-	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 
-	nbytes = file_list[file_fd_dict['file_name']] # file_list[file_name] = nbytes
+	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
+	fname = file_fd_dict['file_name']
+
+	try:
+		nbytes = file_list[fname] # file_list[file_name] = nbytes
+	except:
+		nbytes = findFile(file_list, fname)
 
 	#error check: pos is negative, larger than file size (nbytes), or makes bytes non-contiguous (pos > length)
 	if pos < 0:
@@ -195,6 +200,7 @@ def write(fd, writebuf):
 		system.write(writebuf[i])
 	
 	file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
+	if 
 	file_lengths[fname] += len(writebuf) # update length in file_lengths too
 
 def readlines(fd): # Sally
