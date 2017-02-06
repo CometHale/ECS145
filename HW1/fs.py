@@ -194,14 +194,16 @@ def write(fd, writebuf):
 	#after the start index of the file in fat
 	for i in range(0, len(writebuf)):
 		system.seek(list[i + position]) 
-		if system.read(1) == '\x00': #empty byte
-			file_fd_dict['length'] += 1 #only increment length when that byte was initially empty
+		'''if system.read(1) == '\x00': #empty byte
+			file_fd_dict['length'] += 1 #only increment length when that byte was initially empty'''
 		system.seek(list[i + position]) 
 		system.write(writebuf[i])
 	
 	file_fd_dict['pos'] += len(writebuf)  # pos is also changed by seek
-	if 
-	file_lengths[fname] += len(writebuf) # update length in file_lengths too
+	if file_fd_dict['pos'] > file_lengths[fname] - 1: # prevent lengths from changing if pos is less than the length
+		file_lengths[fname] = file_fd_dict['pos']
+		file_fd_dict['length'] = file_fd_dict['pos']
+	#file_lengths[fname] += len(writebuf) # update length in file_lengths too
 
 def readlines(fd): # Sally
 	#haven't tested reading multiple lines yet. Only read single lines so far and it works.
