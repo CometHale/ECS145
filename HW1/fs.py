@@ -128,6 +128,8 @@ def findFile(f_list, file_name):
 	if file_name in f_list.keys():
 		returned_val = f_list[file_name]
 		return returned_val
+	else:
+		returned_val = -1
 
 	for file_dict in f_list.values():
 		if isinstance(file_dict , dict): #directory
@@ -135,8 +137,8 @@ def findFile(f_list, file_name):
 			if returned_val != -1:
 				break
 
-	if not f_list: #if f_list is empty (empty dicts evaluates to false)
-		return -1
+	'''if not f_list: #if f_list is empty (empty dicts evaluates to false)
+		return -1'''
 
 	return returned_val
 	
@@ -182,7 +184,6 @@ def write(fd, writebuf):
 
 	fname = file_fd_dict['file_name']
 	nbytes = findFile(file_list, fname) # file_list[file_name] = nbytes
-	print nbytes
 	list = posInFAT(fname)
 	position = file_fd_dict['pos'] # Seek to the current filepointer position
 	wbytes = nbytes - position
