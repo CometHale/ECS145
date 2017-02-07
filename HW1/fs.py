@@ -287,6 +287,7 @@ def deldir(dirname): # Haley
 		filelist = traversedir(dirname[:dirname.rfind('/')])
 	else: #dirname is just a name
 		name = dirname
+		filelist = curr_file_list
 
 	'''last_slash = cwd.rfind("/")
 	full_path = cwd[: cwd.rfind('/')] + dirname
@@ -310,17 +311,24 @@ def traversedir(path):
 		firstpart = path[:path.find('/')]
 
 	if firstpart == "..": # ../a/b
-		path = path[path.find('/')+1:] # a/b
-		prevdirpath = cwd[:cwd.rfind('/') + 1] # /s/d/
+		if path.count('/') == 0:
+			path = ''
+			prevdirpath = cwd[:cwd.rfind('/')]
+		else:
+			path = path[path.find('/')+1:] # a/b
+			prevdirpath = cwd[:cwd.rfind('/') + 1] # /s/d/
 		dirlist = prevdirpath + path # dirlist = /s/d/a/b
 	elif firstpart == ".": # ./a/b
-		path = path[path.find('/'):] # /a/b 
-		dirlist = cwd + path
+		if path.count('/') == 0:
+			dirlist = cwd
+		else:
+			path = path[path.find('/'):] # /a/b 
+			dirlist = cwd + path
 	elif firstpart == '': # absolute paths
 		dirlist = path
 	else: # a/b
 		dirlist = cwd + '/' + path
-	
+
 	dirlist = dirlist.split('/') #/a/b/c -> ["", a, b, c]
 	del dirlist[0] # deletes "" from the list 
 	dir_count = len(dirlist)
@@ -335,7 +343,7 @@ def traversedir(path):
 		if i == dir_count - 1:
 			break
 		if dirlist[i+1] not in directory:
-			print "No such dir"
+			raise Exception("Error: No such dir")
 		else:
 			directory = directory[dirlist[i+1]]
 	return directory
@@ -346,9 +354,10 @@ def mkdir(dirname): # Angie
 	else: # if dirname is a path
 		last_slash = dirname.rfind('/')
 		name = dirname[last_slash+1:]  # gets the name of the directory to create
+		traversedir(dirname[:last_slash])[name] = {}
 
 		# takes care of cases where theres only 1 slash in dirname
-		if dirname[:last_slash] == '': # case: /a where a is the directory to create
+		'''if dirname[:last_slash] == '': # case: /a where a is the directory to create
 			file_list[name] = {}
 		elif dirname[:last_slash] =='.': # case: ./a 
 			curr_file_list[name] = {}
@@ -357,7 +366,7 @@ def mkdir(dirname): # Angie
 			
 		# cases where the path has more than one slash
 		else: 
-			traversedir(dirname[:last_slash])[name] = {}
+			traversedir(dirname[:last_slash])[name] = {}'''
 
 def isdir(dirname): # Sally
 	# make sure to include '.', '..'
@@ -376,7 +385,10 @@ def isdir(dirname): # Sally
       #cut off the last part (ie. a/b/c we change to a/b)
       checkDir = dirname[dirname.rfind('/') : ] #finds last occurence of / (ie. checkDir is now /c)
       checkDir = checkDir[1:] #cut off the / (ie. check Dir is now c)
-      dir = traversedir(cwd + dirname[: dirname.rfind('/')]) #traversedir(a/b)
+      if dirname[0] != '/':
+      	dir = traversedir(dirname[: dirname.rfind('/')]) #traversedir(a/b)
+      else:
+      	dir = traversedir(dirname[:dirname.rfind('/')])
       if isinstance(dir[checkDir], (int, long)):
         return False
       else: 
@@ -384,25 +396,34 @@ def isdir(dirname): # Sally
 
 def listdir(dirname): # Sally
 	# make sure to include '.', '..'
-  list = []
-  
-  if dirname == '.': # its the current directory
-    return curr_file_list
-  elif dirname == "..": #find the previous directory
-    #cwd is the absolute path
-    dirPath = cwd[: cwd.rfind('/')] #get rid of last / (ie. a/b/c -> a/b)
-  else: #absolute or relative path
-    if dirname[0] == '/': #absolute path
-      dirPath = dirname
-    else: #relative path ->traverseDir needs an absolute path
-      dirPath = cwd + dirname
-   
-  dir = traversedir(dirPath) #we get a dictionary
-  #put keys into a list
-  for key in dir:
-    list.append(key)
-   
-  return list
+	list = []
+
+	if dirname == '.': # its the current directory
+		return curr_file_list.keys()
+	elif dirname == "..": #find the previous directory
+		#cwd is the absolute path
+		dirPath = cwd[: cwd.rfind('/')] #get rid of last / (ie. a/b/c -> a/b)
+	elif dirname.count('/') > 0:
+		dirPath = dirname
+	'''else: #absolute or relative path
+		if dirname.count('/') == 0:
+			dir = curr_file_list
+		else:
+			 dir = traversedir(dirPath) #we get a dictionary
+	if dirname[0] == '/': #absolute path
+	  dirPath = dirname
+	else: #relative path ->traverseDir needs an absolute path
+	  dirPath = cwd + dirname'''
+
+	if dirname.count('/') == 0:
+		dir = curr_file_list[dirname]
+	else:
+		dir = traversedir(dirPath) #we get a dictionary
+	#put keys into a list
+	for key in dir:
+		list.append(key)
+
+	return list
 
 def suspend(): # Angie
 	
