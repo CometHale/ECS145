@@ -26,7 +26,7 @@ def create(file_name,nbytes):
 	if file_name.count('/') != 0: 
 		name = file_name[file_name.rfind('/')+1:] # gets the actual file name from the path
 		path = file_name[:file_name.rfind('/')]
-		if path == '':
+		if path == '': # create file in root
 			filelist = file_list
 		else:
 			filelist = traversedir(path)
@@ -34,7 +34,7 @@ def create(file_name,nbytes):
 	# file_name is literally just the file name
 	else:
 		name = file_name
-		if cwd != "/": 
+		if cwd != "/": #
 			filelist = curr_file_list # go to the current working directory's dictionary
 		else:
 			filelist = file_list
@@ -60,10 +60,8 @@ def create(file_name,nbytes):
 
 def open(file_name,mode):
 	exist = False
-	# if system not suspended
 	if system.closed:
 		raise Exception("Error: System is suspended; cannot open file.")
-	#if file doesn't exist
 
 	if file_name.count('/') > 0: # is a path
 		name = file_name[file_name.rfind('/')+1:]
@@ -78,7 +76,7 @@ def open(file_name,mode):
 			currfilelist = file_list
 		else: # case: ../a/b or ./a/b or /a/b where b is the file name
 			currfilelist = traversedir(file_name[:file_name.rfind("/")])
-	else: 
+	else: # file_name is just the name
 		name = file_name
 		currfilelist = curr_file_list
 	if name in currfilelist.keys():
@@ -120,7 +118,7 @@ def seek(fd, pos): # Sally
 		raise Exception("Error: pos argument cannot be negative")
 	if pos > nbytes - 1:
 		raise Exception("Error: pos argument cannot be bigger than the file size")
-	if pos > file_fd_dict['length'] + 1: 
+	if pos >= file_fd_dict['length'] + 1: 
 		raise Exception("Error: Bytes must be contiguous")
 
 	file_fd_dict['pos'] = pos;  
@@ -170,8 +168,6 @@ def read(fd, nbytes): # Sally
   
 def write(fd, writebuf):	
 	global file_list
-	# Angie: Currently write does not overwrite contents in files. Like if f1 has size 5 with "hello" already in it, opening and writing in it with "hi"
-	# would give exception not enough bytes to write.
 
 	file_fd_dict = fd_list[fd] # {'file_name':file_name,'pos':0,'length':0,'mode':mode}
 
