@@ -245,6 +245,7 @@ def delfile(file_name): #Haley
 		filelist = traversedir(file_name[:file_name.rfind('/')])		
 	else: # file_name is just the name
 		name = file_name
+		filelist = curr_file_list
 
 	if name in filelist.keys():
 		file_size = filelist[name]
