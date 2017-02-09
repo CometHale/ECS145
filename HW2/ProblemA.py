@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 def calcfreqs(infile, nqs, maxrat):
 	# infile: name of file; each line has the format: '5 4 NA'
 	# nqs: # of questions in the survey
@@ -29,14 +28,3 @@ def calcfreqs(infile, nqs, maxrat):
 
 def highfreqs(freqs, k):
 	pass
-=======
-
-def calcfreqs(infile,nqs,maxrat):
-
-	return 0
-
-def highfreqs(freqs,k):
-
-	return 0
-
->>>>>>> origin/master
