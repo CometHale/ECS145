@@ -3,25 +3,45 @@ def calcfreqs(infile, nqs, maxrat):
 	# nqs: # of questions in the survey
 	# maxrat: choice of responses 1...maxrat
 
-	freqs = {} # ex. {'5,4,5': 3} where '5,4,5' is the type of pattern
-	file = open(infile, 'r')
+	freqs = {} # ex. {'5,4,5': 3} where '5,4,5' is the type of pattern 
+	try:
+		file = open(infile, 'r')
+	except:
+		raise Exception("Error: " + infile + " does not exist")
 	allLines = file.readlines()
 
 	# going through each entry
-	for line in allLines:
+	for x in allLines:
+		print "Looking for matches with: " + x
 		# currently, line = '5 4 NA'
-		line = line.split() # line = ['5', '4', 'NA']
-		freq = 1
+		line = x.split() # line = ['5', '4', 'NA']
+		freq = 0
 
-		for key in freqs.keys():
-			keyanswers = key.split(',') # keyanswers = ['4', '3', '1']
-			print keyanswers
-			print line
-			for l, k in zip(line, keyanswers):
-				if l == k:
-					freq += float(1)/nqs
-					freqs[key] += float(1)/nqs
-		line = ','.join(line)
+		# check if inputs are part of the choice of responses and if there are enough inputs
+		for i in line:
+			if i != "NA" and (eval(i) not in range(maxrat+1)[1:]) or len(line) != nqs:
+				raise Exception("Error: Input incorrect")
+
+		if "NA" in line or x in freqs.keys(): # Don't count patterns with 'NA' and encountered patterns
+			continue
+		else:
+			freqs[','.join(line)] = 0
+
+		for entry in allLines:
+			match = 0
+			entrylist = entry.split() # entrylist = ['4', '3', '1']
+			print "Comparing " + x + " with " + entry
+			if entry == x:
+				freq += 1
+				continue
+			for l, e in zip(line, entrylist):
+				if l == e:
+					match += 1
+
+			if match > 1:
+				freq += float(match)/nqs
+
+		line = ','.join(line)	
 		freqs[line] = freq
 					
 	return freqs
