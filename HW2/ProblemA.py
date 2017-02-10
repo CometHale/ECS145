@@ -12,7 +12,6 @@ def calcfreqs(infile, nqs, maxrat):
 
 	# going through each entry
 	for x in allLines:
-		print "Looking for matches with: " + x
 		# currently, line = '5 4 NA'
 		line = x.split() # line = ['5', '4', 'NA']
 		freq = 0
