@@ -22,15 +22,16 @@ def calcfreqs(infile, nqs, maxrat):
 			if i != "NA" and (eval(i) not in range(maxrat+1)[1:]) or len(line) != nqs:
 				raise Exception("Error: Input incorrect")
 
-		if "NA" in line or x in freqs.keys(): # Don't count patterns with 'NA' and encountered patterns
+		# Don't count patterns with 'NA' and encountered patterns
+		if "NA" in line or x in freqs.keys():
 			continue
 		else:
 			freqs[','.join(line)] = 0
 
+		# compare current line with each entry in file
 		for entry in allLines:
 			match = 0
 			entrylist = entry.split() # entrylist = ['4', '3', '1']
-			print "Comparing " + x + " with " + entry
 			if entry == x:
 				freq += 1
 				continue
