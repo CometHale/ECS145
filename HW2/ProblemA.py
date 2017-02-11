@@ -39,6 +39,8 @@ def calcfreqs(infile, nqs, maxrat):
 			for l, e in zip(line, entrylist):
 				if l == e and "NA" in entry:
 					match += 1
+				else: 
+					break #only match if all patterns match IN ORDER [1, 4, 2] is NOT 1/3 of [3, 4, NA]
 
 			if match > 1:
 				freq += float(match)/nqs
