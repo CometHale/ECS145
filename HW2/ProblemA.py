@@ -47,4 +47,23 @@ def calcfreqs(infile, nqs, maxrat):
 	return freqs
 
 def highfreqs(freqs, k):
-	pass
+
+	if k == 0:
+		raise Exception("Value of k cannot be 0.")
+
+	kfreqs = {}
+	kvals = sorted(list(set(freqs.values()))) #kvals is the list of k highest or lowest vals in freqs
+
+	if k > 0: # k > 0: return the k most frequent patterns
+		kvals = kvals[len(kvals) - k: len(kvals)]
+	else: # k < 0 : return the k least frequent patterns
+		kvals = kvals[0:k]
+	
+	for key in freqs:
+		if freqs[key] in kvals:
+			kfreqs[key] = freqs[key]
+		else: continue
+
+
+	return kfreqs
+
