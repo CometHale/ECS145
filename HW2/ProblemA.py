@@ -49,4 +49,17 @@ def calcfreqs(infile, nqs, maxrat):
 	return freqs
 
 def highfreqs(freqs, k):
-	pass
+	dict = {}
+	freqList = freqs.items() #list of tuple (pattern, value) pairs
+	
+	if k >= 0:
+		freqList.sort(key=lambda f: f[1], reverse=True)
+	else: #k is negative: look for least values
+		k = k * -1 #turn positive
+		freqList.sort(key=lambda f: f[1])
+	
+	freqList = freqList[:k]
+	for f in freqList:
+		dict[f[0]] = f[1]
+		
+	return dict
