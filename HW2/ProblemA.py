@@ -40,9 +40,10 @@ def calcfreqs(infile, nqs, maxrat):
 				if l == e and "NA" in entrylist:
 					match += 1
 				elif l != e and "NA" != e: 
+					match = 0 #reset
 					break #only match if all patterns match IN ORDER [1, 4, 2] is NOT 1/3 of [3, 4, NA]
 
-			if match > 1:
+			if match >= 1:
 				freq += float(match)/nqs
 
 		line = ','.join(line)	
@@ -70,5 +71,4 @@ def highfreqs(freqs, k):
 		elif f[1] == freq:
 			dict[f[0]] = f[1]
 			
-		
 	return dict
