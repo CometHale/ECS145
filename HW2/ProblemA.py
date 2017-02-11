@@ -52,23 +52,22 @@ def calcfreqs(infile, nqs, maxrat):
 	return freqs
 
 def highfreqs(freqs, k):
-	dict = {}
-	num = 0
-	freq = 0;
-	freqList = freqs.items() #list of tuple (pattern, value) pairs
+
+	if k == 0:
+		raise Exception("Value of k cannot be 0.")
+
+	kfreqs = {}
+	kvals = sorted(list(set(freqs.values()))) #kvals is the list of k highest or lowest vals in freqs
+
+	if k > 0: # k > 0: return the k most frequent patterns
+		kvals = kvals[len(kvals) - k: len(kvals)]
+	else: # k < 0 : return the k least frequent patterns
+		kvals = kvals[0:(-k)]
 	
-	if k >= 0:
-		freqList.sort(key=lambda f: f[1], reverse=True)
-	else: #k is negative: look for least values
-		k = k * -1 #turn positive
-		freqList.sort(key=lambda f: f[1])
-	
-	for f in freqList:
-		if num < k and f[1] != freq:
-			dict[f[0]] = f[1]
-			freq = f[1]
-			num += 1
-		elif f[1] == freq:
-			dict[f[0]] = f[1]
-			
-	return dict
+	for key in freqs:
+		if freqs[key] in kvals:
+			kfreqs[key] = freqs[key]
+		else: continue
+
+
+	return kfreqs
