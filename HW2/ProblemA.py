@@ -37,9 +37,9 @@ def calcfreqs(infile, nqs, maxrat):
 				freq += 1
 				continue
 			for l, e in zip(line, entrylist):
-				if l == e and "NA" in entry:
+				if l == e and "NA" in entrylist:
 					match += 1
-				else: 
+				elif l != e and "NA" != e: 
 					break #only match if all patterns match IN ORDER [1, 4, 2] is NOT 1/3 of [3, 4, NA]
 
 			if match > 1:
@@ -52,6 +52,8 @@ def calcfreqs(infile, nqs, maxrat):
 
 def highfreqs(freqs, k):
 	dict = {}
+	num = 0
+	freq = 0;
 	freqList = freqs.items() #list of tuple (pattern, value) pairs
 	
 	if k >= 0:
@@ -60,8 +62,13 @@ def highfreqs(freqs, k):
 		k = k * -1 #turn positive
 		freqList.sort(key=lambda f: f[1])
 	
-	freqList = freqList[:k]
 	for f in freqList:
-		dict[f[0]] = f[1]
+		if num < k and f[1] != freq:
+			dict[f[0]] = f[1]
+			freq = f[1]
+			num += 1
+		elif f[1] == freq:
+			dict[f[0]] = f[1]
+			
 		
 	return dict
