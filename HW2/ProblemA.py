@@ -8,12 +8,14 @@ def calcfreqs(infile, nqs, maxrat):
 		file = open(infile, 'r')
 	except:
 		raise Exception("Error: " + infile + " does not exist")
-	allLines = file.readlines()
+	allLines = file.readlines() #get rid of newlines
 
 	# going through each entry
 	for x in allLines:
-		# currently, line = '5 4 NA'
-		line = x.split() # line = ['5', '4', 'NA']
+		# currently, line = '5 4 NA\n'
+		line = x.split("\n") #get rid of new line first -> line = ['5 4 NA']
+		line = "".join(line)
+		line = line.split() # join new line and split again, line = ['5', '4', 'NA']
 		freq = 0
 
 		# check if inputs are part of the choice of responses and if there are enough inputs
@@ -31,11 +33,11 @@ def calcfreqs(infile, nqs, maxrat):
 		for entry in allLines:
 			match = 0
 			entrylist = entry.split() # entrylist = ['4', '3', '1']
-			if entry == x:
+			if entrylist == line:
 				freq += 1
 				continue
 			for l, e in zip(line, entrylist):
-				if l == e:
+				if l == e and "NA" in entry:
 					match += 1
 
 			if match > 1:
