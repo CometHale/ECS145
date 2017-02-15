@@ -20,6 +20,8 @@ def calcfreqs(infile, nqs, maxrat):
 
 		# check if inputs are part of the choice of responses and if there are enough inputs
 		for i in line:
+			if i != "NA" and not i.isdigit():
+				raise Exception("Error: Input incorrect")
 			if i != "NA" and (eval(i) not in range(maxrat+1)[1:]) or len(line) != nqs:
 				raise Exception("Error: Input incorrect")
 
@@ -37,7 +39,7 @@ def calcfreqs(infile, nqs, maxrat):
 				freq += 1
 				continue
 			for l, e in zip(line, entrylist):
-				if l == e and "NA" in entrylist:
+				if l == e and "NA" in entrylist: # only do partial matching with nonintact patterns
 					match += 1
 				elif l != e and "NA" != e: 
 					match = 0 #reset
@@ -58,6 +60,7 @@ def highfreqs(freqs, k):
 
 	kfreqs = {}
 	kvals = sorted(list(set(freqs.values()))) #kvals is the list of k highest or lowest vals in freqs
+	# set() eliminates any duplicate values
 
 	if k > 0: # k > 0: return the k most frequent patterns
 		kvals = kvals[len(kvals) - k: len(kvals)]
