@@ -23,8 +23,8 @@ def linelengths(filenm, ntrh):
 
 	readlock = thread.allocate_lock()
 	nthread = ntrh
-	lenlist = []
 	file = open(filenm, 'r')
+	lenlist = sum(1 for i in file) * [-1]
 	nbytes = os.path.getsize(filenm)
 	splitnum = nbytes/ntrh
 	startpos = 0
