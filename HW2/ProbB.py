@@ -26,7 +26,6 @@ def countchar(pos):
 
 		if char != '\n':
 			listlock.acquire()
-			print char
 			lenlist[index] += 1
 			listlock.release()
 		else: # goes to the next line
