@@ -54,7 +54,6 @@ def linelengths(filenm, ntrh):
 	for i in range(ntrh):
 		if i != 0:
 			startpos += splitnum
-		print startpos
 		thread.start_new_thread(countchar, (startpos,))
 
 	while nthread > 0: # busy wait
