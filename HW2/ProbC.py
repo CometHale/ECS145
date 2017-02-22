@@ -63,7 +63,7 @@ def storesim(maxsimtime,alphac,betac,alphai,betai):
 	#Otherwise none of this will make sense
 	#The first bank tutorial helped a lot
 
-	global result, max_time, ordernum,initial_cap
+	global result, max_time, ordernum, initial_cap, inventory
 	
 	ordernum = 0 # name of the last order created
 	max_time = maxsimtime
