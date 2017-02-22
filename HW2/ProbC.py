@@ -28,7 +28,7 @@ class InventorySource(Process):
 		for i in range(max_time):
 			# inventory._put()
 			next_inv_arrival = gammavariate(alphai,betai)
-			yield hold, self, next_create
+			yield hold, self, next_inv_arrival
 
 class OrderSource(Process):
 	# Randomly generates customers
@@ -47,7 +47,8 @@ class OrderSource(Process):
 class Order(Process): # a customer order
 
 	def submit(self,inventory): #submits an order to the store's order queue
-		inventory._get()
+		# inventory._get()
+		pass
 
 	def deliver(self): #order has been served so remove one unit from inventory
 		pass
@@ -59,9 +60,7 @@ def storesim(maxsimtime,alphac,betac,alphai,betai):
 	# 	the proportion of customer orders that are filled immediately
 	# 	the proportion of inventory deliveries that are immediately used to fill a customer order upon arrival of the delivery
 	
-	#Note From Haley: Read the SimPy Getting Started and Cheatsheet
-	#Otherwise none of this will make sense
-	#The first bank tutorial helped a lot
+	#Note From Haley: Read the SimPy parts of DESimIntro.pdf, it explains SimPy well
 
 	global result, max_time, ordernum, initial_cap, inventory
 	
