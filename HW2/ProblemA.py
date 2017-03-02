@@ -13,6 +13,7 @@ def calcfreqs(infile, nqs, maxrat):
 	# going through each entry
 	for x in allLines:
 		# currently, line = '5 4 NA\n'
+
 		line = x.split("\n") #get rid of new line first -> line = ['5 4 NA']
 		line = "".join(line)
 		line = line.split() # join new line and split again, line = ['5', '4', 'NA']
