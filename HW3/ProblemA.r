@@ -8,18 +8,18 @@ gcd <- function(num1, num2) {
   temp <- 1
 
   if (num1 > num2) {
-    larger = num1
-    smaller = num2
+    larger <- num1
+    smaller <- num2
   }
   else {
-    larger = num2
-    smaller = num1
+    larger <- num2
+    smaller <- num1
   }
   
   while(temp != 0) {
-    temp = larger %% smaller
-    larger = smaller
-    smaller = temp
+    temp <- larger %% smaller
+    larger <- smaller
+    smaller <- temp
   }
   return larger
 } #determines GCD is 1 or not
@@ -30,10 +30,17 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
 		stop("Could not open file. Stopping script.", call. = FALSE) 
 	}
 
+  # extract pixel data 
+  pixels <- img@grey
+
   if (consec != NULL){
     #check if consec is prime to img size
     if (gcd(length(img@grey), as.numeric(consec)) != 1) {
       warning("consec should be relatively prime to image size.")
     }
+  }
+  else{
+    # user opts for quick and dirty encoding
+
   }    
 }
