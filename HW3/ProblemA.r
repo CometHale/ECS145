@@ -30,9 +30,10 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
 		stop("Could not open file. Stopping script.", call. = FALSE) 
 	}
 
-  #check if consec is prime to img size
-  if (gcd(length(img@grey), as.numeric(consec)) != 1) {
-    warning("consec should be relatively prime to image size.")
-  }
-    
+  if (consec != NULL){
+    #check if consec is prime to img size
+    if (gcd(length(img@grey), as.numeric(consec)) != 1) {
+      warning("consec should be relatively prime to image size.")
+    }
+  }    
 }
