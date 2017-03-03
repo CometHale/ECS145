@@ -46,7 +46,7 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
     utf <- sapply(substr, utf8ToInt) # convert each char to Unicode code points
     utf <- utf / 128
     lastpix <- (nchar(msg) + ((startpix-1)%/%stride)) * stride # last pixel for the last char in msg to embed in without wrapping
-    indices <- c(seq(startpix, lastpix, stride) %% length(pixels)) # a vector of indices in pixel to encode the msg in
+    indices <- c(seq(startpix, lastpix, stride) %% length(pixels)) # a vector of indices in pixel to encode the msg in, wraps around to the beginning if reached the end
     pixels[indices]  <- utf
   }    
 }
