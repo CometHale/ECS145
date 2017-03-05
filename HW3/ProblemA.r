@@ -6,16 +6,20 @@
 
 library(pixmap)
 
-# encode <- function(stride,msg,startpix,pixels) {
-
-# } # Does the message encoding
 convertToGreyIntensity <- function(msg) {
   substr <- strsplit(msg,'')[[1]][1:nchar(msg)] # splits up the string into a vector of individual characters
   unicode <- sapply(substr, utf8ToInt) # convert each char to Unicode code points
   unicode[length(unicode) + 1] <- 0 # adds a null to the end of the unicode msg
   encodedMsg <- unicode / 128
-  return encodedMsg
+  return (encodedMsg)
 } # converts a string to a vector of grey intensity floats for each char in the string
+
+convertToChar <- function(encodedMsg) {
+# encodedMsg is a vector of grey intensities that represents a char
+  unicode <- encodedMsg * 128
+  msg <- sapply(unicode, intToUtf8)
+  return (msg)
+} # converts a vector of grey intensity floats into chars
 
 consecChange <- function(currIndex, consec, indices, pixels) {
   col <- currIndex - (consec+1)*length(pixels[,1])
@@ -28,29 +32,30 @@ consecChange <- function(currIndex, consec, indices, pixels) {
     row <- 1
   }
 
+  # check every combination of consec contiguous pixels
   while (col <= currIndex || row <= currIndex){
     if (row + consec <= length(pixels[,1]))
     {
       consecColIndices <- row:(row + consec)
-      sameCol <- col(pixels)[currIndex] == col(pixels)[consecColIndices] # a boolean vector of whether the consecutive indices are in the same column
-      if (sum(consecColIndices %in% indices) > consec && sum(sameCol)>consec){
-        return TRUE
+      #sameCol <- col(pixels)[currIndex] == col(pixels)[consecColIndices] # a boolean vector of whether the consecutive indices are in the same column
+      if (sum(consecColIndices %in% indices) > consec){
+        return (TRUE)
       }
     }
 
     if (col + consec*length(pixels[,1]) <= length(pixels[1,]))
     {
       consecRowIndices <- col:(col + consec*length(pixels[,1]))
-      sameRow <- row(pixels)[currIndex] == row(pixels)[consecRowIndices] # a boolean vector of whether the consecutive indices are in the same row
-      if (sum(consecRowIndices %in% indices) > consec && sum(sameRow)>consec) {
-        return TRUE
+      #sameRow <- row(pixels)[currIndex] == row(pixels)[consecRowIndices] # a boolean vector of whether the consecutive indices are in the same row
+      if (sum(consecRowIndices %in% indices) > consec) {
+        return (TRUE)
       }
     }
     
     col <- col + length(pixels[,1])
     row <- row + 1
   }
-  return FALSE
+  return (FALSE)
 } # checks if there are more than consec pixels changed in a row or a column
 
 gcd <- function(num1, num2) {
@@ -70,7 +75,7 @@ gcd <- function(num1, num2) {
     larger <- smaller
     smaller <- temp
   }
-  return larger
+  return (larger)
 } # determines GCD is 1 or not
 
 secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
@@ -90,18 +95,17 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
 
   # extract pixel data 
   pixels <- img@grey
+  encodedImg <- img
 
   if(length(pixels) < length(msg)){
     stop("Message is too long to be encoded into this image. Stopping script.", call. = FALSE)
   }
 
-  index <- startpix
-
-  if (consec != NULL){
+  if (!is.null(consec)){
     # check if stride is prime to img size since if they aren't relatively prime, then striding will keep landing in an already embedded pixel
     # without ever visiting a new pixel
-    if (gcd(length(img@grey), as.numeric(stride)) != 1) {
-      warning("stride should be relatively prime to image size.")
+    if (gcd(length(img@grey), stride) != 1) {
+      warning("Stride should be relatively prime to image size.")
     }
     if(consec > 0){
       #avoid character loss, as overwriting a pixel more than once is not allowed. 
@@ -112,10 +116,9 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
       #create an empty vector of indices in pixels to embed each char of the secret message in
       indices <- vector(length=length(encodedMsg))
       i <- 1 # index of indices, aka index of encoded chars in encoded msg
-      currIndex <- startpix
+      currIndex <- startpix # index in pixel
       for (encodedChar in encodedMsg) {
-        #check to make sure none of the indices are repeated more than once
-        # alteredPix <- indices[duplicated(indices)]
+        #check to make sure none of the pixels are altered more than once and also check that no more than consec con
         while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
           currIndex <- (currIndex + stride) %% length(pixels)
           currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
@@ -144,5 +147,46 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
     pixels[indices]  <- encodedMsg # assigns each of the encoded chars to the corresponding indices, may overwrite without limits
   }    
 
-  write.pnm(pixels, file='encodedImg.pgm') # save 
+  encodedImg@grey <- pixels
+  write.pnm(encodedImg, file='encodedImg.pgm') # save 
+}
+
+secretdecoder <- function(imgfilename,startpix,stride,consec=NULL) {
+  img <- try(read.pnm(imgfilename)) #try opening (if error, stop running)
+  if (class(img) == "try-error") { 
+    stop("Could not open file. Stopping script.", call. = FALSE) 
+  }
+
+  # extract pixel data 
+  pixels <- img@grey
+
+  # creates an empty vector to hold each encoded char of the msg
+  encodedMsg <- vector()
+
+  indices <- vector()
+  currIndex <- startpix
+  encodedChar <- pixels[currIndex]
+  while (encodedChar != 0){ # constructs encodedMsg vector
+    indices <- c(indices, currIndex)
+    encodedMsg <- c(encodedMsg, encodedChar)
+
+    # proceed to find the next char
+    currIndex <- (currIndex + stride) %% length(pixels)
+    currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
+
+    if (!is.null(consec)){
+      while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
+        currIndex <- (currIndex + stride) %% length(pixels)
+        currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
+      }
+    }
+
+    indices <- c(indices, currIndex)
+    encodedChar <- pixels[currIndex]
+  }
+
+  decodedMsg <- convertToChar(encodedMsg)
+  originalMsg <- paste(decodedMsg, collapse="")
+
+  return (originalMsg)
 }
