@@ -16,7 +16,7 @@ convertToGreyIntensity <- function(msg) {
 
 convertToChar <- function(encodedMsg) {
 # encodedMsg is a vector of grey intensities that represents a char
-  unicode <- encodedMsg * 128
+  unicode <- round(encodedMsg * 128, digits=0)
   #print(unicode)
   msg <- sapply(unicode, intToUtf8)
   return (msg)
