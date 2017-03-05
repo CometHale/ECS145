@@ -10,13 +10,12 @@ library(pixmap)
 
 # } # Does the message encoding
 convertToGreyIntensity <- function(msg) {
-# converts a string to a vector of grey intensity floats for each char in the string
   substr <- strsplit(msg,'')[[1]][1:nchar(msg)] # splits up the string into a vector of individual characters
   unicode <- sapply(substr, utf8ToInt) # convert each char to Unicode code points
   unicode[length(unicode) + 1] <- 0 # adds a null to the end of the unicode msg
   encodedMsg <- unicode / 128
   return encodedMsg
-}
+} # converts a string to a vector of grey intensity floats for each char in the string
 
 consecChange <- function(currIndex, consec, indices, pixels) {
   col <- currIndex - (consec+1)*length(pixels[,1])
