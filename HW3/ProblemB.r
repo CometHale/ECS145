@@ -6,13 +6,12 @@
 #  dname <- currdir
 walk <- function(currdir, f, arg, firstcall=TRUE) {
   #arguments for f(drname, flist, arg)
-	if (firstcall == TRUE) {
-		originaldir <- getwd()
-		drname <- currdir
-		flist <<- vector(length=0)  #global
+	if (firstcall == TRUE) { #first call of recursion...set up
+		originaldir <- getwd() #when we finish walking, go back to directory where walk was originally called
+		flist <<- vector(length=0)  #global; flist will contain all the ABSOLUTE PATHS of files and directories contained in 'currdir'
 	}
 	
-	setwd(currdir)
+	setwd(currdir) #move to that directory
 	diritems <- dir()
 	
 	if (length(diritems) != 0) {
@@ -27,11 +26,11 @@ walk <- function(currdir, f, arg, firstcall=TRUE) {
 		
 		for (d in dirlist) {
 			walk(d, f, arg, firstcall=FALSE)
-			setwd('..')
+			setwd('..') #manually set back to previous dir (ie. walk recursion brings us to "a/b", when we come out we want to be in "a")
 		}
-	}
+	} #if directory is not empty
 	
-	if (firstcall == TRUE) {
+	if (firstcall == TRUE) { #we finish recursion and are back in the first call
 		setwd(originaldir)
 		return(f(currdir, flist, arg))
 	}
