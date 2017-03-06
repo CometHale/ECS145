@@ -48,19 +48,8 @@ consecChange <- function(currIndex, consec, indices, pixels) {
 	maxConsecCol <- tapply(infoCol$lengths, infoCol$values, max) #takes max number for each item (from prev example, tapply returns FALSE 1 TRUE 2)
 	maxConsecRow <- tapply(infoRow$lengths, infoRow$values, max)
 	
-	if ("TRUE" %in% names(maxConsecCol)) { #if true exists
-		consecTrueCol <- as.numeric(maxConsecCol["TRUE"]) #extract out the TRUE part (we only care about this) and make it a number
-	}
-	else { #no trues, all false
-		consecTrueCol <- 0
-	}
-	
-	if ("TRUE" %in% names(maxConsecRow))	{
-		consecTrueRow <- as.numeric(maxConsecRow["TRUE"])
-	}
-	else {
-		consecTrueRow <- 0
-	}
+	consecTrueCol <- ifelse("TRUE" %in% names(maxConsecCol), as.numeric(maxConsecCol["TRUE"]), 0) #if true exists,#extract out the TRUE part (we only care about this) and make it a number
+	consecTrueRow <- ifelse("TRUE" %in% names(maxConsecRow), as.numeric(maxConsecRow["TRUE"]), 0) #if false, vector was all false 
 	
 	if (consecTrueCol > consec || consecTrueRow > consec) {
 		return(TRUE)
