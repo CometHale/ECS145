@@ -83,7 +83,7 @@ gcd <- function(num1, num2) {
 
 secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
   #Extra reading on subsetting:http://adv-r.had.co.nz/Subsetting.html
-	img <- try(read.pnm(imgfilename)) #try opening (if error, stop running)
+	img <- try(read.pnm(imgfilename,cellres=1)) #try opening (if error, stop running)
 	if (class(img) == "try-error") { 
 		stop("Could not open file. Stopping script.", call. = FALSE) 
 	}
@@ -153,7 +153,7 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
 }
 
 secretdecoder <- function(imgfilename,startpix,stride,consec=NULL) {
-  img <- try(read.pnm(imgfilename)) #try opening (if error, stop running)
+  img <- try(read.pnm(imgfilename,cellres=1)) #try opening (if error, stop running)
   if (class(img) == "try-error") { 
     stop("Could not open file. Stopping script.", call. = FALSE) 
   }
