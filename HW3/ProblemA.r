@@ -42,8 +42,27 @@ consecChange <- function(currIndex, consec, indices, pixels) {
 	rowCheck <- contigRow %in% indices
 	
 	#checking if contiguous
-	check <- rep(c(TRUE), consec) #creates a vector of TRUE consec times
-	if (check %in% colCheck || check %in% rowCheck) {
+	infoCol <- rle(colCheck) #rle gives number of consective values(ie. colCheck = [TRUE, FALSE, TRUE, TRUE], rle returns lengths: [1,1,2] values:[TRUE, FALSE, TRUE])
+	infoRow <- rle(rowCheck)
+	
+	maxConsecCol <- tapply(infoCol$lengths, infoCol$values, max) #takes max number for each item (from prev example, tapply returns FALSE 1 TRUE 2)
+	maxConsecRow <- tapply(infoRow$lengths, infoRow$values, max)
+	
+	if ("TRUE" %in% names(maxConsecCol)) { #if true exists
+		consecTrueCol <- as.numeric(maxConsecCol["TRUE"]) #extract out the TRUE part (we only care about this) and make it a number
+	}
+	else { #no trues, all false
+		consecTrueCol <- 0
+	}
+	
+	if ("TRUE" %in% names(maxConsecRow))	{
+		consecTrueRow <- as.numeric(maxConsecRow["TRUE"])
+	}
+	else {
+		consecTrueRow <- 0
+	}
+	
+	if (consecTrueCol > consec || consecTrueRow > consec) {
 		return(TRUE)
 	}
 	return(FALSE)
@@ -112,12 +131,10 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
       i <- 1 # index of indices, aka index of encoded chars in encoded msg
       currIndex <- startpix # index in pixel
       for (encodedChar in encodedMsg) {
-        print(i)
         #check to make sure none of the pixels are altered more than once and also check that no more than consec con
         while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
           currIndex <- (currIndex + stride) %% length(pixels)
           currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
-          print(currIndex)
         }
 
         indices[i] <- currIndex
