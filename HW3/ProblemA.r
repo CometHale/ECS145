@@ -84,6 +84,13 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
     stop("Message is too long to be encoded into this image. Stopping script.", call. = FALSE)
   }
 
+
+  #num_consec_pixels  == consec * (num_rows +  num_cols), total number of pixels that can be used if there is a consec
+    num_consec_pixels <- consec * (nrow(pixels) + ncol(pixels))
+  if (length(msg) > num_consec_pixels){
+    stop("Message is too long to be encoded with that consec in this image. Stopping script.", call. = FALSE)
+  }
+
   if (!is.null(consec)){
     if(consec < 0 ){
       stop("Consec can not be negative. Stopping script.", call. = FALSE)
