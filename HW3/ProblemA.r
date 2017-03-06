@@ -33,7 +33,7 @@ consecChange <- function(currIndex, consec, indices, pixels) {
 	lowerBoundRow = ifelse(rowIndex - consec <= 0, 1, rowIndex - consec)
 	upperBoundRow = ifelse(rowIndex + consec > nrow(pixels), nrow(pixels), rowIndex + consec)
 	
-	#col major index formula: (j - 1) * num_rows + (i- 1) + 1 where i and j is col index and row index, respectiviely (the -1 and +1 account for vectors starting at 1 and not 0)
+	#col major index formula: (j - 1) * num_rows + (i- 1) + 1 where i and j is row index and col index, respectiviely (the -1 and +1 account for vectors starting at 1 and not 0)
 	getIndex <- function(i, j) return((j-1) * nrow(pixels) + (i - 1) + 1)
 	contigCol <- getIndex(lowerBoundRow:upperBoundRow, colIndex)
 	contigRow <- getIndex(rowIndex, lowerBoundCol:upperBoundCol)
