@@ -110,7 +110,7 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
       #Exposure as a secret message carrier is also mitigated by not allowing more than consec contiguous pixels in any row or column to be altered.
 
       encodedMsg <- convertToGreyIntensity(msg)
-      print(encodedMsg)
+      #print(encodedMsg)
 
       #create an empty vector of indices in pixels to embed each char of the secret message in
       indices <- vector(length=length(encodedMsg))
@@ -185,7 +185,7 @@ secretdecoder <- function(imgfilename,startpix,stride,consec=NULL) {
   }
 
   #print(indices)
-  print(encodedMsg)
+  #print(encodedMsg)
   decodedMsg <- convertToChar(encodedMsg) # vector of individual chars of the original msg
   #print(decodedMsg)
   originalMsg <- paste(decodedMsg, collapse="") # concatenates the chars into string
