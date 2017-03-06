@@ -136,6 +136,9 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
         while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
           currIndex <- (currIndex + stride) %% length(pixels)
           currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
+          if (currIndex == indices[1]) {
+            stop("Visited all the possible pixels. Canceling encoding.", call. = FALSE)
+          }
           #print(currIndex)
         }
 
