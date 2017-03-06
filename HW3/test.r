@@ -4,7 +4,7 @@ msg <- "Poem-a-Day is the original and only daily digital poetry series featurin
 
 startpix <- 332544
 stride <- 100001
-cons <- 10
+cons <- 1
 secretencoder("LLL.pgm", msg, startpix, stride, consec=cons)
 text <- secretdecoder("encodedImg.pgm", startpix, stride, consec=cons)
 print(text)

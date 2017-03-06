@@ -52,7 +52,8 @@ consecChange <- function(currIndex, consec, indices, pixels) {
     {
       consecColIndices <- r:(r + consec)
       #sameCol <- col(pixels)[currIndex] == col(pixels)[consecColIndices] # a boolean vector of whether the consecutive indices are in the same column
-      if (sum(consecColIndices %in% indices) > consec){
+      if (sum(consecColIndices %in% indices) == consec){
+        #print("hi")
         return (TRUE)
       }
     }
@@ -61,7 +62,8 @@ consecChange <- function(currIndex, consec, indices, pixels) {
     {
       consecRowIndices <- c:(c + consec*length(pixels[,1]))
       #sameRow <- row(pixels)[currIndex] == row(pixels)[consecRowIndices] # a boolean vector of whether the consecutive indices are in the same row
-      if (sum(consecRowIndices %in% indices) > consec) {
+      if (sum(consecRowIndices %in% indices) == consec) {
+        #print("hi")
         return (TRUE)
       }
     }
@@ -134,7 +136,7 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
         while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
           currIndex <- (currIndex + stride) %% length(pixels)
           currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
-          print(currIndex)
+          #print(currIndex)
         }
 
         indices[i] <- currIndex
