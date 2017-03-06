@@ -25,18 +25,20 @@ convertToChar <- function(encodedMsg) {
 consecChange <- function(currIndex, consec, indices, pixels) {
   # vector index of the starting column of the row
   c <- currIndex - (consec+1)*length(pixels[,1])
-  if (col(pixels)[currIndex] - (consec+1)*length(pixels[,1])<=length(pixels[1,]) || c<=0) {
+  # if the column - (consec+1)*length(pixels[,1]) is less than the width 
+  if (col(pixels)[currIndex] - (consec+1)*length(pixels[,1])<=1 || c<=0) {
     c <- row(pixels)[currIndex] 
   }
 
   # vector index of the starting row of the column
   r <- currIndex - consec 
-  if (row(pixels)[currIndex] - consec <= length(pixels[,1]) || r <= 0) {
+  if (row(pixels)[currIndex] - consec <= 1 || r <= 0) {
     r <- (col(pixels)[currIndex]-1)*length(pixels[,1]) + 1
   }
 
   # check every combination of consec contiguous pixels
   while (c <= currIndex && r <= currIndex){
+    #print("bye")
     if ((row(pixels)[r]+consec) <= length(pixels[,1]))
     {
       consecColIndices <- r:(r + consec)
@@ -58,6 +60,7 @@ consecChange <- function(currIndex, consec, indices, pixels) {
     c <- c + length(pixels[,1])
     r <- r + 1
   }
+  #print("hi")
   return (FALSE)
 } # checks if there are more than consec pixels changed in a row or a column
 
@@ -117,10 +120,12 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
       i <- 1 # index of indices, aka index of encoded chars in encoded msg
       currIndex <- startpix # index in pixel
       for (encodedChar in encodedMsg) {
+        print(i)
         #check to make sure none of the pixels are altered more than once and also check that no more than consec con
         while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
           currIndex <- (currIndex + stride) %% length(pixels)
           currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
+          print(currIndex)
         }
 
         indices[i] <- currIndex
