@@ -24,15 +24,24 @@ convertToChar <- function(encodedMsg) {
 
 consecChange <- function(currIndex, consec, indices, pixels) {
   # vector index of the starting column of the row
-  c <- currIndex - (consec+1)*length(pixels[,1])
-  # if the column - (consec+1)*length(pixels[,1]) is less than the width 
-  if (col(pixels)[currIndex] - (consec+1)*length(pixels[,1])<=1 || c<=0) {
+  c <- currIndex - consec*length(pixels[,1])
+  if (col(pixels)[currIndex] - consec < 1 || c<=0) {
     c <- row(pixels)[currIndex] 
   }
 
   # vector index of the starting row of the column
   r <- currIndex - consec 
-  if (row(pixels)[currIndex] - consec <= 1 || r <= 0) {
+  # if the starting row# of the consecutive column indices vector is < 1 or the
+  # starting vector index of the consecutive column indices vector is <= 0...
+  # ex. [,1] [,2] [,3] [,4]
+  # [1,]  1    4    7   10 
+  # [2,]  2    5    8   *11*
+  # [3,]  3    6    9   12
+  # currIndex = 11, consec = 3, r = currIndex-consec = 11-3=8
+  # row(pixels)[currIndex] = 2, so row(pixels)[currIndex] - consec = 2 - 3 < 1
+  # enters the if statement and calculates r:
+  # r = (4-1)*(3) + 1 = 10, so 10 is the starting index of the consecutive column indices vector
+  if (row(pixels)[currIndex] - consec < 1 || r <= 0) {
     r <- (col(pixels)[currIndex]-1)*length(pixels[,1]) + 1
   }
 
@@ -120,7 +129,7 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
       i <- 1 # index of indices, aka index of encoded chars in encoded msg
       currIndex <- startpix # index in pixel
       for (encodedChar in encodedMsg) {
-        print(i)
+        #print(i)
         #check to make sure none of the pixels are altered more than once and also check that no more than consec con
         while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
           currIndex <- (currIndex + stride) %% length(pixels)
