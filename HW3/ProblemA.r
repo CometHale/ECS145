@@ -24,67 +24,44 @@ convertToChar <- function(encodedMsg) {
 
 consecChange <- function(currIndex, consec, indices, pixels) {
   # vector index of the starting column of the row
-  # c <- currIndex - (consec+1)*length(pixels[,1])
-  # # if the column - (consec+1)*length(pixels[,1]) is less than the width 
-  # if (col(pixels)[currIndex] - (consec+1)*length(pixels[,1])<=1 || c<=0) {
-    # c <- row(pixels)[currIndex] 
-  # }
+  c <- currIndex - (consec+1)*length(pixels[,1])
+  # if the column - (consec+1)*length(pixels[,1]) is less than the width 
+  if (col(pixels)[currIndex] - (consec+1)*length(pixels[,1])<=1 || c<=0) {
+    c <- row(pixels)[currIndex] 
+  }
 
-  # # vector index of the starting row of the column
-  # r <- currIndex - consec 
-  # if (row(pixels)[currIndex] - consec <= 1 || r <= 0) {
-    # r <- (col(pixels)[currIndex]-1)*length(pixels[,1]) + 1
-  # }
-	
-	colIndex = col(pixels)[currIndex] #get col where currIndex comes from
-	rowIndex = row(pixels)[currIndex] #get row where currIndex comes from
-	lowerBoundCol = ifelse(colIndex - consec <= 0, 1, colIndex - consec) #if out of bounds, lowerBound is col 1
-	upperBoundCol = ifelse(colIndex + consec > ncol(pixels), ncol(pixels), colIndex + consec) #if outofbounds, upperBound is the max columns
-	#do upper and lower bounds for rows
-	lowerBoundRow = ifelse(rowIndex - consec <= 0, 1, rowIndex - consec)
-	upperBoundRow = ifelse(rowIndex + consec > nrow(pixels), nrow(pixels), rowIndex + consec)
-	
-	#col major index formula: (j - 1) * num_rows + (i- 1) + 1 where i and j is col index and row index, respectiviely (the -1 and +1 account for vectors starting at 1 and not 0)
-	getIndex <- function(i, j) return((j-1) * nrow(pixels) + (i - 1) + 1)
-	contigCol <- getIndex(lowerBoundRow:upperBoundRow, colIndex)
-	contigRow <- getIndex(rowIndex, lowerBoundCol:upperBoundCol)
-	
-	colCheck <- contigCol %in% indices #returns a vector of TRUE or FALSE
-	rowCheck <- contigRow %in% indices
-	
-	#checking if contiguous
-	check <- rep(c(TRUE), consec) #creates a vector of TRUE consec times
-	if (check %in% colCheck || check %in% rowCheck) {
-		return(TRUE)
-	}
-	return(FALSE)
-	
-  # # check every combination of consec contiguous pixels
-  # while (c <= currIndex && r <= currIndex){
-    # #print("bye")
-    # if ((row(pixels)[r]+consec) <= length(pixels[,1]))
-    # {
-      # consecColIndices <- r:(r + consec)
-      # #sameCol <- col(pixels)[currIndex] == col(pixels)[consecColIndices] # a boolean vector of whether the consecutive indices are in the same column
-      # if (sum(consecColIndices %in% indices) > consec){
-        # return (TRUE)
-      # }
-    # }
+  # vector index of the starting row of the column
+  r <- currIndex - consec 
+  if (row(pixels)[currIndex] - consec <= 1 || r <= 0) {
+    r <- (col(pixels)[currIndex]-1)*length(pixels[,1]) + 1
+  }
 
-    # if ((col(pixels)[c]+consec*length(pixels[,1])) <= length(pixels[1,]))
-    # {
-      # consecRowIndices <- c:(c + consec*length(pixels[,1]))
-      # #sameRow <- row(pixels)[currIndex] == row(pixels)[consecRowIndices] # a boolean vector of whether the consecutive indices are in the same row
-      # if (sum(consecRowIndices %in% indices) > consec) {
-        # return (TRUE)
-      # }
-    # }
+  # check every combination of consec contiguous pixels
+  while (c <= currIndex && r <= currIndex){
+    #print("bye")
+    if ((row(pixels)[r]+consec) <= length(pixels[,1]))
+    {
+      consecColIndices <- r:(r + consec)
+      #sameCol <- col(pixels)[currIndex] == col(pixels)[consecColIndices] # a boolean vector of whether the consecutive indices are in the same column
+      if (sum(consecColIndices %in% indices) > consec){
+        return (TRUE)
+      }
+    }
+
+    if ((col(pixels)[c]+consec*length(pixels[,1])) <= length(pixels[1,]))
+    {
+      consecRowIndices <- c:(c + consec*length(pixels[,1]))
+      #sameRow <- row(pixels)[currIndex] == row(pixels)[consecRowIndices] # a boolean vector of whether the consecutive indices are in the same row
+      if (sum(consecRowIndices %in% indices) > consec) {
+        return (TRUE)
+      }
+    }
     
-    # c <- c + length(pixels[,1])
-    # r <- r + 1
-  # }
-  # #print("hi")
-  # return (FALSE)
+    c <- c + length(pixels[,1])
+    r <- r + 1
+  }
+  #print("hi")
+  return (FALSE)
 } # checks if there are more than consec pixels changed in a row or a column
 
 gcd <- function(num1, num2) {
@@ -122,16 +99,15 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
     stop("Message is too long to be encoded into this image. Stopping script.", call. = FALSE)
   }
 
- if (gcd(length(img@grey), stride) != 1) {
-		warning("Stride should be relatively prime to image size.")
-	}
-
   if (!is.null(consec)){
     if(consec < 0 ){
       stop("Consec can not be negative. Stopping script.", call. = FALSE)
     }
     # check if stride is prime to img size since if they aren't relatively prime, then striding will keep landing in an already embedded pixel
     # without ever visiting a new pixel
+    if (gcd(length(img@grey), stride) != 1) {
+      warning("Stride should be relatively prime to image size.")
+    }
     if(consec >= 0){
       #avoid character loss, as overwriting a pixel more than once is not allowed. 
       #Exposure as a secret message carrier is also mitigated by not allowing more than consec contiguous pixels in any row or column to be altered.
@@ -144,10 +120,12 @@ secretencoder <- function(imgfilename, msg, startpix, stride, consec=NULL) {
       i <- 1 # index of indices, aka index of encoded chars in encoded msg
       currIndex <- startpix # index in pixel
       for (encodedChar in encodedMsg) {
+        print(i)
         #check to make sure none of the pixels are altered more than once and also check that no more than consec con
         while (currIndex %in% indices || consecChange(currIndex, consec, indices, pixels)) {
           currIndex <- (currIndex + stride) %% length(pixels)
           currIndex <- ifelse(currIndex == 0, length(pixels), currIndex)
+          print(currIndex)
         }
 
         indices[i] <- currIndex
