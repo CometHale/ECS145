@@ -4,10 +4,11 @@
 
 #for both functions:
 #   dataStruct: the data structure object (either binary tree, stack, or queue)
-#   name:(variable) name of the data structure (as a string) to assign the updated data structure as R does not allow passing-by-reference in functinos
+#   name:(variable) name of the data structure (as a string) to assign the updated data structure as R does not allow passing-by-reference in functions
+#     ie. x <- newqueue() , user will pass in "x" as name
 
 #for push:
-#   item to be pushed
+#   item: item to be pushed
 
 pop <- function(dataStruct, name) UseMethod("pop")
 push <- function(dataStruct, item, name) UseMethod("push")

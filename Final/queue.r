@@ -1,11 +1,10 @@
 #Contains functions to create a new instance of a queue, print, and push/pop functions
 
 newqueue <- function() {
-	que <- list()
+  que <- list()
   class(que) <- "queue"
-	que$numItems <- 0 #no items in queue
-	que$Items <- c(NA)
-  que$NumQueue <- 0 #CHANGE LATER -gives each queue a 'number'
+  que$numItems <- 0 #no items in queue
+  que$Items <- c(NA)
   return(que)
 }
 
