@@ -41,4 +41,4 @@ pop(myStack, "myStack")
 pop(myStack, "myStack")
 
 cat("myStack now contains: ")
-print(myStack)
+print(myStack) #nothing outputs
