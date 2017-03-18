@@ -1,4 +1,4 @@
-# stack data structure class
+#Contains functions to create a new instance of a stack, print, and push/pop functions
 
 newstack <- function() {
 	stack <- list()
