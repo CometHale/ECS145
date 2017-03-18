@@ -4,7 +4,7 @@
 
 #for both functions:
 #   dataStruct: the data structure object (either binary tree, stack, or queue)
-#   name:(variable) name of the data structure to assign the updated data structure as R does not allow passing-by-reference in functinos
+#   name:(variable) name of the data structure (as a string) to assign the updated data structure as R does not allow passing-by-reference in functinos
 
 #for push:
 #   item to be pushed
