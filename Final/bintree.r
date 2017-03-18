@@ -10,15 +10,16 @@ newbintree <- function(){
 
 push.bintree <- function(tree,item,name){
 
-	left_children <- tree$data[,2]
-	right_children <- tree$data[,3]
-	missing_rchild <- which(is.na(right_children))[1]
-	missing_lchild <- which(is.na(left_children))[1]
-
 	if(is.na(tree$data[1,1])){ #first push
 		tree$data[1,1] <- item
 	}
 	else{
+
+		left_children <- tree$data[,2]
+		right_children <- tree$data[,3]
+		missing_rchild <- which(is.na(right_children))[1]
+		missing_lchild <- which(is.na(left_children))[1]
+
 		new_node <- c(item,NA,NA)
 
 		if(item > tree$data[missing_rchild,1]){ #add item as a rhs child
