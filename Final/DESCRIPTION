@@ -1,7 +1,7 @@
 Package: final_project
 Version: 1.1.5
-Author: Sally Ly <sadly@ucdavis.edu> [cre,aut], Angie Li <waili@ucdavis.edu> [cre,aut], Haley Sanders <hfsanders@ucdavis.edu>
-Maintainer: Sally Ly <sadly@ucdavis.edu> [cre,aut], Angie Li <waili@ucdavis.edu> [cre,aut], Haley Sanders <hfsanders@ucdavis.edu>
+Author: Sally Ly <sadly@ucdavis.edu> [cre,aut], Wai Ying Li <waili@ucdavis.edu> [cre,aut], Haley Sanders <hfsanders@ucdavis.edu>
+Maintainer: Sally Ly <sadly@ucdavis.edu> [cre,aut], Wai Ying Li <waili@ucdavis.edu> [cre,aut], Haley Sanders <hfsanders@ucdavis.edu>
 Title: Data Structures In R 
 Description: Stacks, Queues and Binary Trees implemented in R.
 Depends: regtools,parallel,stats,utils,data.table,pdist,methods
