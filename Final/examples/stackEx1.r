@@ -5,8 +5,7 @@
 #the last pop should return an error
 #results should be printed after each pop and push
 
-#push returns the new queue structure but automatically updates the stack so there is no need for reassignment
-#stack will be printed after a series of pushes or pops to see what is happening 
+#push returns the new stack structure but automatically updates the stack so there is no need for reassignment
 
 source("../genfunc.r")
 source("../stack.r")

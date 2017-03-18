@@ -1,4 +1,5 @@
 #Contains functions to create a new instance of a stack, print, and push/pop functions
+#name is the global variable to save the stack as
 
 newstack <- function() {
 	stack <- list()
@@ -15,8 +16,8 @@ push.stack <- function(stack, element, name) {
 	else stack$Items <- c(stack$Items, element)
 	stack$numItems <- stack$numItems + 1
 	assign(name, stack, envir=.GlobalEnv)
-	stack 
-} # end push
+	stack # automatically calls print.stack if not assigned
+} # end push, returns the stack obj
 
 pop.stack <- function(stack, name) {
 	if (stack$numItems == 0) {
@@ -26,11 +27,11 @@ pop.stack <- function(stack, name) {
 	stack$Items <- stack$Items[-stack$numItems]
 	stack$numItems <- stack$numItems - 1
 	assign(name, stack, envir=.GlobalEnv)
-	popped
-} # end pop
+	popped # automatically calls print.default if not assigned
+} # end pop, returns popped value
 
 # print(stack) will dispatch to print.stack
-print.stack <- function(stack, name) {
+print.stack <- function(stack) {
 	if (stack$numItems != 0) {
 		print(stack$Items)
 	}
