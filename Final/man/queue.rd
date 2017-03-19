@@ -34,69 +34,69 @@ Here is an overview of the functions:
 
 		\item \code{print.queue}: A generic function that prints out the elements in the queue according to the order the elements were inserted in. Nothing will output if queue is empty.
 	}
+}
 
-An example of typical application code:
+\examples{
+	#Example 1
+
+	#pushes in 1,2,3,4
+	#pops twice
+	#push 5
+	#pop once
+	#prints out resulting queue
+
+	#push returns the new queue structure but automatically updates the queue so there is no need for reassignment
+	#queue will be printed after a series of pushes or pops to see what is happening 
+	print("Example 1: ")
+	q <- newqueue()
+
+	print("Pushing 1,2,3,4")
+	push(q, 1, "q")
+	push(q, 2, "q")
+	push(q, 3, "q")
+	push(q, 4, "q")
+	print(q)
+
+	print("Pop the Queue")
+	pop(q, "q")
+	print(q)
+
+	print("Pushing 5")
+	push(q, 5, "q")
+	print(q)
+
+	print("Pop the Queue")
+	pop(q, "q")
+
+	print(q)
+
+
+	#Example 2
 	
-	\examples{
-		#pushes in 1,2,3,4
-		#pops twice
-		#push 5
-		#pop once
-		#prints out resulting queue
+	#pushes in 1,2
+	#pop three times
+	#an empty queue will print out nothing
+	#pop will stop and print out an error
 
-		#push returns the new queue structure but automatically updates the queue so there is no need for reassignment
-		#queue will be printed after a series of pushes or pops to see what is happening 
+	#*push returns the new queue structure but automatically updates the queue so there is no need for reassignment
 
-		q <- newqueue()
+	print("Example 2: ")
+	q <- newqueue()
 
-		print("Pushing 1,2,3,4")
-		push(q, 1, "q")
-		push(q, 2, "q")
-		push(q, 3, "q")
-		push(q, 4, "q")
-		print(q)
+	print("Pushing 1 and 2")
+	push(q, 1, "q")
+	push(q, 2, "q")
+	print(q)
 
-		print("Pop the Queue")
-		pop(q, "q")
-		print(q)
+	print("Popping the queue twice")
+	pop(q, "q")
+	pop(q, "q")
+	print(q)
+	#queue is empty at this point
+	print("Pop the Queue")
+	pop(q, "q")
 
-		print("Pushing 5")
-		push(q, 5, "q")
-		print(q)
-
-		print("Pop the Queue")
-		pop(q, "q")
-
-		print(q)
-	}
-
-A second example:
-
-	\examples{
-		#pushes in 1,2
-		#pop three times
-		#an empty queue will print out nothing
-		#pop will stop and print out an error
-
-		#*push returns the new queue structure but automatically updates the queue so there is no need for reassignment
-
-		q <- newqueue()
-
-		print("Pushing 1 and 2")
-		push(q, 1, "q")
-		push(q, 2, "q")
-		print(q)
-
-		print("Popping the queue twice")
-		pop(q, "q")
-		pop(q, "q")
-		print(q)
-		#queue is empty at this point
-		print("Pop the Queue")
-		pop(q, "q")
-
-		print(q)
-	}
+	print(q)
 }
 
 \author{Sally Ly, Wai Ying Li, Haley Sanders}
