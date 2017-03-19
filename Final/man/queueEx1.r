@@ -7,9 +7,6 @@
 #push returns the new queue structure but automatically updates the queue so there is no need for reassignment
 #queue will be printed after a series of pushes or pops to see what is happening 
 
-source("../genfunc.r")
-source("../queue.r")
-
 q <- newqueue()
 
 print("Pushing 1,2,3,4")

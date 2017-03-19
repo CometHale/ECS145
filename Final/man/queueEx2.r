@@ -5,9 +5,6 @@
 
 #*push returns the new queue structure but automatically updates the queue so there is no need for reassignment
 
-source("../genfunc.r")
-source("../queue.r")
-
 q <- newqueue()
 
 print("Pushing 1 and 2")

@@ -4,9 +4,6 @@
 #attempting a pop on an empty bintree will produce an error
 #push reassigns the new bintree to the old variable automatically
 
-source("../genfunc.r")
-source("../bintree.r")
-
 tree <- newbintree()
 
 push.bintree(tree,2,"tree")

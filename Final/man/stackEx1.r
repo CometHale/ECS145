@@ -7,9 +7,6 @@
 
 #push returns the new stack structure but automatically updates the stack so there is no need for reassignment
 
-source("../genfunc.r")
-source("../stack.r")
-
 print("creating a new stack...")
 stack <- newstack()
 

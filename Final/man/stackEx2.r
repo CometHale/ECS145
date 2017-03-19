@@ -5,9 +5,6 @@
 #empty out stack
 #empty out myStack
 
-source("../genfunc.r")
-source("../stack.r")
-
 print("Creating new stack...")
 stack <- newstack()
 

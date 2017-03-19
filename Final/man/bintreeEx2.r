@@ -6,9 +6,6 @@
 #after all pushes have occurred, bintree will be printed
 #after each pop bintree will be printed
 
-source("../genfunc.r")
-source("../bintree.r")
-
 tree <- newbintree()
 
 print("Pushing 3,5,2,7,-2,10,11,-90")
