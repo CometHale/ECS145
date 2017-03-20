@@ -1,0 +1,133 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Thin Sectioned Essay
+% LaTeX Template
+% Version 1.0 (3/8/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original Author:
+% Nicolas Diaz (nsdiaz@uc.cl) with extensive modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[a4paper, 11pt]{article} % Font size (can be 10pt, 11pt or 12pt) and paper size (remove a4paper for US letter paper)
+
+\usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+\usepackage{graphicx} % Required for including pictures
+\usepackage{wrapfig} % Allows in-line images
+
+\usepackage{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Required for accented characters
+\linespread{1.05} % Change line spacing here, Palatino benefits from a slight increase by default
+
+\makeatletter
+\renewcommand\@biblabel[1]{\textbf{#1.}} % Change the square brackets for each bibliography item from '[1]' to '1.'
+\renewcommand{\@listI}{\itemsep=0pt} % Reduce the space between items in the itemize and enumerate environments and the bibliography
+
+\renewcommand{\maketitle}{ % Customize the title - do not edit title and author name here, see the TITLE block below
+\begin{flushright} % Right align
+{\LARGE\@title} % Increase the font size of the title
+
+\vspace{50pt} % Some vertical space between the title and author name
+
+{\large\@author} % Author name
+\\\@date % Date
+
+\vspace{40pt} % Some vertical space between the author block and abstract
+\end{flushright}
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE
+%----------------------------------------------------------------------------------------
+
+\title{\textbf{Term Project Write Up}\\ % Title
+ECS145 Winter 2017} % Subtitle
+
+\author{\textsc{Wai Ying Li (998092926) \\ \textsc{Sally Ly (999882177)} \\ \textsc{Haley Sanders-Turner (912296300)}} % Author
+\\{\textit{UC Davis}}} % Institution
+
+\date{\today} % Date
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle % Print the title section
+
+%	ESSAY BODY
+%----------------------------------------------------------------------------------------
+
+\section*{I. Introduction}
+
+\hspace{4ex} R's policy of no pointers and no side effects proved to make the term project more difficult than we expected. First, setting up the constructors for the data structures was relatively easy. We set up S3 classes for all three. In more detail: for the binary tree, we created a class named \textbf{bintree}, and used a three column matrix named \textbf{data}. In this matrix, each node was represented by a row in the matrix, and the value of the node was stored in the first column of a row. The left hand child's row number was stored in the second column of the row, and the right hand child's row number was stored in the third column. For both the \textbf{queue} and \textbf{stack} classes, we used a list to hold two things, \textbf{Items} and \textbf{numItems}. \textbf{Items} is a vector to hold the actual queue or stack, and \textbf{numItems} is a counter. This list is assigned the class \textbf{queue} or \textbf{stack} in the constructors.
+
+
+%------------------------------------------------
+
+\section*{II. Implementation}
+
+\subsection*{Binary Tree}
+\hspace{4ex} For the binary tree, the \textbf{push} function was implemented relatively simply. First we determined whether or not an item had been assigned to the root. Next we found the first two nodes that were missing either a left or right child, and made a separate row for the item being pushed into the tree. Using this information, we assigned the new row as the child of the appropriate parent, with the parent missing a right hand child taking precedence. The \textbf{pop} function was implemented by using the \textbf{min} and \textbf{which} functions to determine which row needed to be deleted. These functions were also used while determining which rows would need to have their child "links" updated. The \textbf{print} function for \textbf{bintree} was implemented using a recursive helper function that would print the value of the current node before calling itself on the current node's children.
+
+\subsection*{Stack and Queue}
+\hspace{4ex} As for both \textbf{stack} and \textbf{queue}, the implementations are quite similar and straightforward.  The \textbf{push} functions for both check if the data structure is empty in order to assign the first element. Otherwise, the element to be inserted will just be appended to the existing vector and the modified data structure will be saved to a global environment variable. (More on global environment variables in \texttt{section III}) The \textbf{pop} function is the main difference between the two classes, though not by much. Both \textbf{pop} functions first checks if the vector is empty to prevent going out of the vector's boundary when deleting the popped element. For the \textbf{stack}, the \textbf{pop} function will save the last element of the vector to a variable that will be returned and modify the \textbf{Items} vector to exclude the last element. This modified stack will then be saved to a global environment variable. The same goes for \textbf{queue}, but \textbf{queue} will just \textbf{pop} the first element rather than the last element.
+
+\subsection*{Generic Functions}
+\hspace{4ex} We created an R file called \textbf{genfunc.r} that contained the generic functions for \textbf{push} and \textbf{pop} so the separate files of \textbf{bintree}, \textbf{stack}, and \textbf{queue} could use them.\footnote{\textbf{print} already exists as a generic function in R so we don't have to declare it. We simply just create \textbf{bintree}, \textbf{stack}, and \textbf{queue} versions of print.} Both \textbf{push} and \textbf{pop} have \textbf{dataStruct} as the first argument so the generic functions know which data structure method to dispatch to. \textbf{push} has an extra argument item which is simply the item that will be added to the data structure. Finally, the argument \textbf{name} is the name of the data structure (the variable name that you assigned to the data structure) which is used to update the data structure. This will be explained in more detail in \texttt{Section III} where we discuss the issues we faced with R's policy of no pointers.
+
+%------------------------------------------------
+
+\section*{III. Challenges}
+\hspace{4ex}  In languages like C, C++, or Python, updating a data structure class using methods was simple; we just simply passed the object by reference into the method. We could update a class variable inside a function. However, this is difficult to do in R because of its hard policy of "no side effects." For S3 classes, this policy means that we can't actually change our original objects in our class methods. We would have to return the copied object and re-assign it our variable. In order to avoid this, we tried different methods.
+\\\\
+\indent First, we tried using the super assignment operator "\textbf{<<-}" thinking we could turn our class "global" and then update it globally in our function methods. However, this proved to not work as we thought it would. As an example:
+\begin{verbatim}
+   newqueue <- function() {
+      que <<- list()
+      class(que) <<- "queue"
+      ...
+      return(que)
+   }
+
+\end{verbatim}
+On the line \texttt{que <<- list()}, the super assignment operator looks for a variable called \textbf{que} on the global environment and if there isn't one, it creates a variable named \textbf{que} to assign to. Now assume that we want to create a new queue by writing:
+\begin{verbatim}
+   q <- newqueue()
+\end{verbatim}
+What our \textbf{newqueue} function would do is not only create a global variable \textbf{que} but also return a copy of this object and assign it to \textbf{q}! To emphasize, \textbf{q} holds a copy of \textbf{que} and NOT a pointer because of R's "no pointers" rule. Thus, if we were to look at one our earlier versions of a class method (with some code omitted to conserve space):
+\begin{verbatim}
+   push.queue <- function(que, item) {  
+      ...
+      que$numItems <<- que$numItems + 1 
+      ...
+      return(que)
+   } #appends item to end of queue, returns the new object
+\end{verbatim}
+The line incrementing \textbf{numItems} would update the variable \textbf{que} and NOT \textbf{q} because the super assignment operator searches the global environment for only the name \textbf{que}. There are two problems to this: (1) the user would be forced to reassign \textbf{q} instead of simply writing \texttt{push(q, item)} and \textbf{push} updating the data structure itself. This poses an even bigger problem with \textbf{pop} as the function returns the popped value and we can't return the new updated data structure. (2) What if the user wants to create multiple queues? If they created a second queue (for the example, we call it \textbf{q2}), \textbf{que} would be overwritten and we would lose the first queue. And if we called for a \textbf{push} on \textbf{q}, we would essentially be pushing onto the new queue \textbf{q2} (via \textbf{que})!
+\\\\
+\indent The essential problem is that we are updating the \textbf{que} variable and not the variables we actually want to hold the data structure (from the previous example, we want to update \textbf{q}). We wanted to find a way to tell our program to specifically update \textbf{q}. This is where the \textbf{assign} function comes in. With this function, we can name any variable \textbf{name} and \textbf{assign} something to it. We can even explicitly tell \textbf{assign} which environment it should look in. To grab our variable name, we added an extra argument in \textbf{push} and \textbf{pop} called \textbf{name} which is basically a string of the variable name. From our queue example, \textbf{name} would hold "q" since we want to update the object in \textbf{q}. We added in:
+\begin{verbatim}
+   assign(name, que, envir=.GlobalEnv)
+\end{verbatim}
+in queue.r's \textbf{pop} and \textbf{push} functions after we finished updating our local variable \textbf{que}. The \textbf{assign} function then searches the global environment for \textbf{q} and assign \textbf{que} to it. And viola! \textbf{q} updates successfully without reassigning the returned value! \footnote{We didn't have to change \textbf{push} as we could just reassign the returned value unlike for \textbf{pop} where we must return the popped value and had no other way to return the updated data structure. However, we added the \textbf{name} argument to \textbf{push} anyway as we thought it would be easier for the user to simply push items onto the data structure and not have to constantly reassign (unless they wanted to assign it to a different variable, etc). Our code is also more uniform since \textbf{pop} and \textbf{push} are used in almost the same manner.}
+%------------------------------------------------
+
+\section*{IV. Conclusion}
+
+\hspace{4ex} The primary function of data structures is to provide efficient data storage and even more efficient data retrieval and updating. For this reason, data structures are generally implemented using pointers, which minimize the amount of memory necessary to store a structure.  Functional languages like R, however,  have a focus on the reduction of side effects, and so forego pointer systems.  This means that the only method of passing data around in R is via pass by value, which complicates the development of data structures. This forced us to further explore the nuances of R in order to develop other methods to update the data stored in the structure, preferably without needing to copy and reassign the entire structure to a variable each time. We did this chiefly by utilizing R's \textbf{assign()} function. It's important to note that R was not completely unhelpful.  
+\\\\
+\indent R does have pseudo-structures called \textbf{S3 classes} that are useful in data retrieval. Further, in R it is easy to reduce the time complexity of some functions by using its vector subsetting operations and the \textbf{which()} function, which removed the need to use loops in both the bintree \textbf{pop} and \textbf{push} functions. In the end, one cannot underestimate the need to choose one's tools wisely -- programming languages are not one-size fits all, but in some rare cases, ingenuity and resourcefulness can temporarily patch the worst holes . 
+
+
+
+\end{document}
